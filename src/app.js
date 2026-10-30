@@ -4,6 +4,35 @@ const D = window.RBC_DATA;
 const rp = (n) => 'Rp' + Math.round(n).toLocaleString('id-ID');
 const img = (k) => D.img[k] || '';
 const Icon = ({ n, cls = '' }) => html`<svg class=${'ico ' + cls} viewBox="0 0 24 24" aria-hidden="true" dangerouslySetInnerHTML=${{ __html: ICONS[n] || '' }}></svg>`;
+/* ---------- Pasang di layar utama (sama dengan lib/install.ts PWA Robucca) ---------- */
+const isIOS = () => document.documentElement.classList.contains('ios');
+const isStandalone = () => document.documentElement.classList.contains('standalone');
+let installEvt = null;
+const installSubs = new Set();
+addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvt = e; installSubs.forEach((f) => f()); });
+addEventListener('appinstalled', () => { installEvt = null; installSubs.forEach((f) => f()); });
+function useInstall() {
+  const [, tick] = useState(0);
+  useEffect(() => { const f = () => tick((n) => n + 1); installSubs.add(f); return () => installSubs.delete(f); }, []);
+  return installEvt;
+}
+const promptInstall = () => { if (!installEvt) return false; installEvt.prompt(); installEvt = null; installSubs.forEach((f) => f()); return true; };
+const store = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* noop */ } } };
+
+function InstallTip() {
+  const evt = useInstall();
+  const [off, setOff] = useState(() => store.get('rbc:install-off') === '1');
+  if (off || isStandalone() || (!isIOS() && !evt)) return null;
+  const close = () => { store.set('rbc:install-off', '1'); setOff(true); };
+  return html`<div class="card ios-tip">
+    <img src="assets/apple-touch-icon.png" alt="" onError=${(e) => { e.target.src = D.logo['rbc-mark-dark']; }}/>
+    <span class="grow"><b>Pasang RBC Group di ${isIOS() ? 'iPhone' : 'HP'}</b>
+      ${isIOS() ? html`<small>Ketuk <${Icon} n="share" /> lalu <b style=${{ display: 'inline', fontSize: '12px' }}>Tambah ke Layar Utama</b></small>`
+        : html`<small>Buka seperti aplikasi, tanpa install dari Play Store</small>`}</span>
+    ${!isIOS() && html`<button class="btn sm" onClick=${() => promptInstall()}>Pasang</button>`}
+    <button class="icon-btn" onClick=${close} aria-label="Tutup"><${Icon} n="x" cls="sm" /></button></div>`;
+}
+
 const Pic = ({ src, style }) => html`<div class="im loaded" style=${style}><img class="ok" src=${src} alt="" loading="lazy"/></div>`;
 
 /* ---------- Data tiga brand ----------
@@ -81,7 +110,7 @@ function App() {
   const pickBrand = (b) => { if (b !== brand) setBrand(b); };
 
   useEffect(() => { const f = () => { setSub(null); setTab(tabFromHash()); }; addEventListener('hashchange', f); return () => removeEventListener('hashchange', f); }, []);
-  useEffect(() => { document.documentElement.dataset.brand = brand; }, [brand]);
+  useEffect(() => { document.documentElement.dataset.brand = brand; const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#FAEEDA'; }, [brand]);
   const showCart = cart.length > 0 && !sub && (tab === 'home' || tab === 'menu');
   useEffect(() => { document.body.classList.toggle('sub', !!sub); document.body.classList.toggle('has-cart', showCart); }, [sub, showCart]);
   useEffect(() => { document.documentElement.classList.toggle('lock', !!sheet); }, [sheet]);
@@ -184,6 +213,8 @@ function Home(c) {
         <button class="mode" onClick=${() => go('rsv')}><span class="mi"><${Icon} n="calendar" /></span><span><b>Reservasi</b><small>Booking meja</small></span></button>
       </div>
     </div>
+
+    <${InstallTip} />
 
     ${live && html`<a class="live" href="#" onClick=${(e) => { e.preventDefault(); openSub({ type: 'status', order: live }); }}>
       <span class="lv-ico pulse"><${Icon} n="coffee" /></span><span class="grow"><b>Pesanan sedang disiapkan</b><small>${live.id} · ${groupBy(live.lines).length} cabang</small></span><${Icon} n="chevron-right" cls="sm" /></a>`}
@@ -556,7 +587,8 @@ function Pesanan({ orders, rsvs, openSub, setCart, go }) {
     </div></div>`;
 }
 
-function Akun({ points, orders }) {
+function Akun({ points, orders, toast }) {
+  const install = () => { if (!promptInstall()) toast(isIOS() ? 'Ketuk tombol Bagikan, lalu Tambah ke Layar Utama' : 'Buka menu browser (⋮), lalu Tambahkan ke layar utama'); };
   const target = 2500;
   return html`<div class="screen">
     <div class="acc-head"><h1>Akun</h1></div>
@@ -568,8 +600,8 @@ function Akun({ points, orders }) {
       <div class="bl">${BRANDS.map((b) => html`<${BLogo} key=${b.id} b=${b.id} />`)}</div></div>
     <div class="card profile" style=${{ margin: '12px 16px 0' }}><span class="avatar">D</span><span class="grow"><b>Dinda Ayu Lestari</b><small>0812-0000-1234 · masuk dengan WhatsApp</small></span></div>
     <div class="card menu-list">
-      ${[['qr', 'Kode member', 'Tunjukkan di kasir Robucca, Kalm, Zumma'], ['map-pin', 'Alamat tersimpan', '2 alamat · dipakai di semua brand'], ['receipt', 'Riwayat pesanan', orders.length + ' pesanan'], ['chat', 'Bantuan', 'Chat WhatsApp RBC Group'], ['logout', 'Keluar', '']].map(([ic, t, s]) => html`
-        <button key=${t} class="ml"><span class="ml-i"><${Icon} n=${ic} cls="sm" /></span><span class="grow">${t}${s && html`<small>${s}</small>`}</span><${Icon} n="chevron-right" cls="sm" /></button>`)}</div>
+      ${[['qr', 'Kode member', 'Tunjukkan di kasir Robucca, Kalm, Zumma'], ['map-pin', 'Alamat tersimpan', '2 alamat · dipakai di semua brand'], ['receipt', 'Riwayat pesanan', orders.length + ' pesanan'], ['chat', 'Bantuan', 'Chat WhatsApp RBC Group'], ...(isStandalone() ? [] : [['share', 'Pasang di layar utama', 'Buka RBC Group seperti aplikasi']]), ['logout', 'Keluar', '']].map(([ic, t, s]) => html`
+        <button key=${t} class="ml" onClick=${t === 'Pasang di layar utama' ? install : undefined}><span class="ml-i"><${Icon} n=${ic} cls="sm" /></span><span class="grow">${t}${s && html`<small>${s}</small>`}</span><${Icon} n="chevron-right" cls="sm" /></button>`)}</div>
     <div class="foot"><img src=${D.logo['rbc-dark']} alt="RBC Group"/>Versi prototipe · 30 Okt 2026</div></div>`;
 }
 
@@ -580,6 +612,7 @@ function Desk() {
   return html`<aside class="desk"><img class="desk-logo" src=${D.logo['rbc-dark']} alt="RBC Group"/>
     <p class="desk-lead">Prototipe super app</p>
     <p class="desk-note">Kerangka PWA Robucca yang sudah live, diperluas untuk Robucca, Kalm dan Zumma. Tampilan, warna dan huruf ikut brand yang dipilih. Menu & foto asli; promo, poin, jarak dan ongkir contoh.</p>
+    <p class="desk-note"><b>Dirancang untuk HP.</b> Buka <b>robucca-it.github.io/rbc-super-app</b> di HP, lalu pasang ke layar utama supaya terbuka seperti aplikasi.</p>
     <h3>Coba alurnya</h3><div class="flows">${flows.map(([k, t, s]) => html`<button key=${k} onClick=${() => api.go(k)}>${t}<small>${s}</small></button>`)}</div>
     <h3>Perlu keputusan</h3><ul><li><b>Ongkir</b> pesanan dari beberapa cabang (contoh Rp12.000 per cabang).</li><li><b>Aturan RBC Poin</b> (contoh 1 poin tiap Rp1.000, 1 poin = Rp10).</li><li><b>Domain</b>: tetap robucca.id atau domain RBC Group.</li></ul></aside>`;
 }
@@ -588,3 +621,6 @@ function Desk() {
 document.getElementById('splash-img').src = D.logo['rbc-light'];
 setTimeout(() => document.getElementById('splash').classList.add('out'), 1100);
 ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+
+/* Offline & pasang di layar utama. Hanya di https (GitHub Pages); di tempat lain diabaikan. */
+if ('serviceWorker' in navigator && location.protocol === 'https:') addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

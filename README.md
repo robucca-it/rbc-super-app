@@ -10,6 +10,17 @@ Buka `index.html` di browser. `data.js` harus berada di folder yang sama. Protot
 
 React 18.3.1 dan htm 3.1.1 dimuat dari CDN (cdnjs dan unpkg), jadi perlu koneksi internet.
 
+## Pasang di HP
+
+Situs publik: https://robucca-it.github.io/rbc-super-app/
+
+Situs ini bisa dipasang ke layar utama HP seperti PWA robucca.id. Setelah dipasang, ia terbuka layar penuh dengan ikon dan splash RBC Group, dan tetap bisa dibuka saat sinyal hilang.
+
+- **iPhone (Safari):** ketuk tombol Bagikan, lalu pilih **Tambah ke Layar Utama**.
+- **Android (Chrome):** ketuk **Pasang** di kartu Beranda, atau buka menu ⋮ lalu pilih **Tambahkan ke layar utama**.
+
+Isinya mengikuti PWA robucca.id (`apps/pwa/app/manifest.ts`, `public/sw.js`, layout `(app)`): `manifest.webmanifest`, `sw.js`, ikon dan splash di `assets/`, kelas `ios`/`standalone` untuk ruang aman layar, kartu "Pasang" di Beranda, dan baris "Pasang di layar utama" di Akun. Splash iPhone dibuat dari logo RBC di atas warna #152D22.
+
 ## Struktur
 
 | Path | Isi |
@@ -20,6 +31,7 @@ React 18.3.1 dan htm 3.1.1 dimuat dari CDN (cdnjs dan unpkg), jadi perlu koneksi
 | `src/app.js` | Aplikasi (React + htm): Beranda, Menu, Keranjang, Bayar, Status, Reservasi, Pesanan, Akun |
 | `data.js` | Menu dan foto (data URI) Robucca, Kalm, Zumma, serta logo RBC Group |
 | `index.html` | Hasil rakitan. Jangan diedit langsung |
+| `manifest.webmanifest`, `sw.js`, `assets/` | Pemasangan di HP: manifes, service worker offline, ikon dan splash |
 | `docs/screenshots/` | Tangkapan layar v3 |
 
 Setelah mengubah file di `src/`, rakit ulang dengan:

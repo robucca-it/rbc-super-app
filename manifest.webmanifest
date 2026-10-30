@@ -1,0 +1,18 @@
+{
+  "name": "RBC Group: Robucca, Kalm, Zumma",
+  "short_name": "RBC Group",
+  "description": "Pesan Robucca, Kalm dan Zumma dalam satu aplikasi: pick up tanpa antre, delivery, dan reservasi meja.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#152D22",
+  "theme_color": "#FAEEDA",
+  "lang": "id",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

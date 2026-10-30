@@ -1,5 +1,43 @@
-<title>RBC Group Super App</title>
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RBC Group</title>
+<meta name="description" content="Pesan Robucca, Kalm dan Zumma dalam satu aplikasi: pick up tanpa antre, delivery, dan reservasi meja.">
+<meta name="theme-color" content="#FAEEDA">
+<meta name="color-scheme" content="light">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="application-name" content="RBC Group">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RBC Group">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-1260x2736.png" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-1242x2208.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+<link rel="apple-touch-startup-image" href="assets/splash/splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+<script>
+/* Sama dengan PWA Robucca: kelas iPhone/standalone, dan splash hanya sekali per sesi. */
+(function(){try{var d=document.documentElement,n=navigator,u=n.userAgent;
+var ios=/iP(hone|od|ad)/.test(n.platform)||/iPhone|iPod/.test(u)||(u.indexOf('Mac')>-1&&n.maxTouchPoints>1);
+var sa=n.standalone===true||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches);
+if(ios)d.classList.add('ios');if(sa)d.classList.add('standalone');
+var k='rbc:splash';if(sessionStorage.getItem(k)==='1')d.classList.add('no-splash');else sessionStorage.setItem(k,'1');
+}catch(e){}})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@400;900&family=Poppins:wght@400;500;600;700&family=Radio+Canada+Big:wght@500;600;700&family=Jost:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
@@ -174,7 +212,8 @@ button { cursor: pointer; }
 .desk ul b { color: var(--ink); }
 @media (min-width: 1000px) { body { background: var(--bg-2); } }
 </style>
-
+</head>
+<body>
 <div class="splash" id="splash"><img src="" alt="RBC Group" id="splash-img"></div>
 <div id="root"></div>
 
@@ -185,3 +224,5 @@ button { cursor: pointer; }
 <script>
 /*APP_JS*/
 </script>
+</body>
+</html>
