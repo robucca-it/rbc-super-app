@@ -211,6 +211,18 @@ button { cursor: pointer; }
 .desk ul { margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--ink-2); display: grid; gap: 6px; }
 .desk ul b { color: var(--ink); }
 @media (min-width: 1000px) { body { background: var(--bg-2); } }
+
+/* Menu bawah bersembunyi saat scroll ke bawah, muncul lagi saat scroll ke atas (html.nav-off dipasang di app.js).
+   Keranjang & tombol bayar turun mengisi tempatnya, jadi tetap terlihat. */
+.tabbar { transition: transform .28s var(--ease); }
+html.nav-off .tabbar { transform: translate(-50%, 100%); }
+.cartbar { transition: bottom .28s var(--ease); }
+html.nav-off .cartbar { bottom: calc(var(--safe-b-t) + 10px); }
+body:not(.sub) .paybar { transition: bottom .28s var(--ease), padding-bottom .28s var(--ease); }
+html.nav-off body:not(.sub) .paybar { bottom: 0; padding-bottom: var(--pad-b); }
+@media (prefers-reduced-motion: reduce) { .tabbar, .cartbar, body:not(.sub) .paybar { transition: none; } }
+/* Animasi masuk layar tidak meninggalkan transform, supaya tombol bayar (position: fixed) menempel ke layar HP, bukan ke halaman. */
+.view > .screen { animation-fill-mode: backwards; }
 </style>
 </head>
 <body>

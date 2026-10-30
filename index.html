@@ -1064,6 +1064,18 @@ button { cursor: pointer; }
 .desk ul { margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--ink-2); display: grid; gap: 6px; }
 .desk ul b { color: var(--ink); }
 @media (min-width: 1000px) { body { background: var(--bg-2); } }
+
+/* Menu bawah bersembunyi saat scroll ke bawah, muncul lagi saat scroll ke atas (html.nav-off dipasang di app.js).
+   Keranjang & tombol bayar turun mengisi tempatnya, jadi tetap terlihat. */
+.tabbar { transition: transform .28s var(--ease); }
+html.nav-off .tabbar { transform: translate(-50%, 100%); }
+.cartbar { transition: bottom .28s var(--ease); }
+html.nav-off .cartbar { bottom: calc(var(--safe-b-t) + 10px); }
+body:not(.sub) .paybar { transition: bottom .28s var(--ease), padding-bottom .28s var(--ease); }
+html.nav-off body:not(.sub) .paybar { bottom: 0; padding-bottom: var(--pad-b); }
+@media (prefers-reduced-motion: reduce) { .tabbar, .cartbar, body:not(.sub) .paybar { transition: none; } }
+/* Animasi masuk layar tidak meninggalkan transform, supaya tombol bayar (position: fixed) menempel ke layar HP, bukan ke halaman. */
+.view > .screen { animation-fill-mode: backwards; }
 </style>
 </head>
 <body>
@@ -1235,6 +1247,20 @@ function App() {
   const showCart = cart.length > 0 && !sub && (tab === 'home' || tab === 'menu');
   useEffect(() => { document.body.classList.toggle('sub', !!sub); document.body.classList.toggle('has-cart', showCart); }, [sub, showCart]);
   useEffect(() => { document.documentElement.classList.toggle('lock', !!sheet); }, [sheet]);
+  // Menu bawah: sembunyi saat scroll ke bawah, muncul saat scroll ke atas atau dekat puncak halaman.
+  useEffect(() => {
+    const root = document.documentElement;
+    let last = scrollY;
+    const f = () => {
+      const y = scrollY, d = y - last;
+      if (Math.abs(d) < 8) return;
+      root.classList.toggle('nav-off', d > 0 && y > 80);
+      last = y;
+    };
+    addEventListener('scroll', f, { passive: true });
+    return () => removeEventListener('scroll', f);
+  }, []);
+  useEffect(() => { document.documentElement.classList.remove('nav-off'); }, [tab, sub]);
 
   // Satu keranjang untuk tiga brand. Tiap baris ingat outletnya; saat checkout dipecah per outlet.
   const add = (outletId, item, sel, qty, note = '') => {

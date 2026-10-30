@@ -114,6 +114,20 @@ function App() {
   const showCart = cart.length > 0 && !sub && (tab === 'home' || tab === 'menu');
   useEffect(() => { document.body.classList.toggle('sub', !!sub); document.body.classList.toggle('has-cart', showCart); }, [sub, showCart]);
   useEffect(() => { document.documentElement.classList.toggle('lock', !!sheet); }, [sheet]);
+  // Menu bawah: sembunyi saat scroll ke bawah, muncul saat scroll ke atas atau dekat puncak halaman.
+  useEffect(() => {
+    const root = document.documentElement;
+    let last = scrollY;
+    const f = () => {
+      const y = scrollY, d = y - last;
+      if (Math.abs(d) < 8) return;
+      root.classList.toggle('nav-off', d > 0 && y > 80);
+      last = y;
+    };
+    addEventListener('scroll', f, { passive: true });
+    return () => removeEventListener('scroll', f);
+  }, []);
+  useEffect(() => { document.documentElement.classList.remove('nav-off'); }, [tab, sub]);
 
   // Satu keranjang untuk tiga brand. Tiap baris ingat outletnya; saat checkout dipecah per outlet.
   const add = (outletId, item, sel, qty, note = '') => {
