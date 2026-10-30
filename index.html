@@ -1,0 +1,1674 @@
+<title>RBC Group Super App</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@400;900&family=Poppins:wght@400;500;600;700&family=Radio+Canada+Big:wght@500;600;700&family=Jost:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Kerangka = CSS asli PWA robucca.id (apps/pwa/app/styles/pwa.css + extra.css), tidak diubah. */
+/* =========================================================
+   Robucca — mobile ordering & reservation
+   ========================================================= */
+:root {
+  --bg: #FAEEDA;
+  --bg-2: #F1E1C4;
+  --card: #FFFCF6;
+  --ink: #0C3A23;
+  --ink-2: #4E5B50;
+  --ink-3: #8A8873;
+  --line: #EBDCC0;
+  --greige: #D6C49F;
+  --sand: #F3E2C1;
+  --olive: #01512C;
+  --olive-2: #DCEBDD;
+  --caramel: #D29A00;
+  --danger: #D7262B;
+  --danger-2: #FBE0DD;
+
+  --serif: "Londrina Solid", "Arial Narrow", Impact, sans-serif;
+  --sans: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --r-sm: 12px;
+  --r: 18px;
+  --r-lg: 24px;
+  --shadow: 0 1px 2px rgba(41, 31, 20, .05), 0 6px 22px rgba(41, 31, 20, .07);
+  --shadow-lg: 0 18px 50px rgba(41, 31, 20, .22);
+
+  --app-w: 460px;
+  --tab-h: 60px;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  /* iPhone dgn home indicator: tab bar dirapatkan seperti tab bar native iOS */
+  --safe-b-t: max(calc(var(--safe-b) - 12px), 0px);
+  --tab-total: calc(var(--tab-h) + var(--safe-b-t));
+  --pad-b: max(12px, var(--safe-b));
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-behavior: auto; touch-action: manipulation; background: var(--bg); }
+html.lock, html.lock body { overflow: hidden; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+img { display: block; max-width: 100%; -webkit-user-drag: none; -webkit-touch-callout: none; }
+/* Elemen UI tidak ikut terseleksi / memunculkan menu saat ditekan lama (iOS) */
+.tabbar, .cartbar, .chip, .btn, .item, .sig, .mode, .seg, .opt, .pay, .date, .area, .qty, .add, .icon-btn, .ml, .cat, .slide, .store-card, .live, .oc, .sheet-handle, .switch {
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+input, textarea, select { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+body.lock { overflow: hidden; }
+
+.ico { width: 22px; height: 22px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ico.sm { width: 18px; height: 18px; }
+.ico.xs { width: 15px; height: 15px; }
+.ico.lg { width: 26px; height: 26px; }
+.ico.fill { fill: currentColor; stroke: none; }
+
+/* ---------- App shell ---------- */
+.app {
+  position: relative;
+  max-width: var(--app-w);
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  background: var(--bg);
+  padding-bottom: var(--tab-total);
+}
+body.sub .app { padding-bottom: 0; }
+.view { outline: none; }
+.view > .screen { animation: screen-in .38s var(--ease) both; }
+.view > .screen.still { animation: none; }
+body.has-cart .app { padding-bottom: calc(var(--tab-total) + 78px); }
+@keyframes screen-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* Desktop framing */
+.desk { display: none; }
+@media (min-width: 1000px) {
+  body { background: #EAD9B9; }
+  .app { box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 30px 80px rgba(41,31,20,.18); }
+  .desk {
+    display: block; position: fixed; top: 50%; transform: translateY(-50%);
+    right: calc(50% + var(--app-w) / 2 + 56px); width: 300px; color: var(--ink);
+  }
+  .desk-logo { width: 260px; margin-bottom: 28px; }
+  .desk-lead { font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-size: 24px; line-height: 1.3; margin: 0 0 18px; }
+  .desk-note { color: var(--ink-2); margin: 0 0 22px; }
+  .desk-addr { font-size: 13px; color: var(--ink-2); border-top: 1px solid rgba(0,0,0,.12); padding-top: 16px; margin: 0; }
+}
+
+/* Splash */
+.splash {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center;
+  background: var(--greige); transition: opacity .5s ease, visibility .5s;
+}
+.splash img { width: 58%; max-width: 240px; animation: splash-in .9s var(--ease) both; }
+.splash.out { opacity: 0; visibility: hidden; }
+@keyframes splash-in { from { opacity: 0; transform: translateY(8px) scale(.97); letter-spacing: 2px; } to { opacity: 1; transform: none; } }
+
+/* ---------- Tab bar ---------- */
+.tabbar {
+  position: fixed; z-index: 40; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: min(100%, var(--app-w));
+  height: var(--tab-total); padding-bottom: var(--safe-b-t);
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  background: rgba(255, 255, 255, .94);
+  backdrop-filter: saturate(1.4) blur(16px); -webkit-backdrop-filter: saturate(1.4) blur(16px);
+  border-top: 1px solid var(--line);
+}
+body.sub .tabbar { display: none; }
+.tabbar a {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  font-size: 10.5px; font-weight: 500; color: var(--ink-3); transition: color .2s;
+}
+.tabbar a .ti { display: grid; place-items: center; height: 26px; transition: transform .25s var(--ease); }
+.tabbar a.on { color: var(--ink); font-weight: 600; }
+.tabbar a.on .ti { transform: translateY(-1px); }
+.tabbar a.on::before {
+  content: ""; position: absolute; top: 0; width: 26px; height: 3px; border-radius: 0 0 3px 3px; background: var(--ink);
+}
+.tab-dot { position: absolute; top: 9px; left: calc(50% + 8px); width: 8px; height: 8px; border-radius: 50%; background: var(--olive); box-shadow: 0 0 0 2px #fff; }
+
+/* ---------- Cart bar ---------- */
+.cartbar {
+  position: fixed; z-index: 39; left: 50%; transform: translateX(-50%);
+  bottom: calc(var(--tab-total) + 10px);
+  width: calc(min(100%, var(--app-w)) - 24px);
+  display: flex; align-items: center; gap: 12px;
+  min-height: 58px; padding: 9px 10px 9px 12px;
+  background: var(--ink); color: #fff; border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(28, 27, 25, .32);
+  animation: bar-in .35s var(--ease) both;
+}
+.cartbar.bump { animation: bump .45s var(--ease); }
+@keyframes bar-in { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes bump { 0%{transform:translate(-50%,0) scale(1)} 35%{transform:translate(-50%,0) scale(1.035)} 100%{transform:translate(-50%,0) scale(1)} }
+.cartbar .cb-ico { position: relative; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,.12); display: grid; place-items: center; }
+.cartbar .cb-count { position: absolute; top: -5px; right: -5px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 10px; background: #fff; color: var(--ink); font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+.cartbar .cb-text { flex: 1; min-width: 0; line-height: 1.25; }
+.cartbar .cb-text b { display: block; font-size: 14px; font-weight: 600; }
+.cartbar .cb-text span { font-size: 11.5px; color: rgba(255,255,255,.66); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.cartbar .cb-go { display: flex; align-items: center; gap: 4px; padding: 0 12px; height: 40px; border-radius: 12px; background: #fff; color: var(--ink); font-weight: 600; font-size: 13.5px; }
+
+/* ---------- Generic ---------- */
+.pad { padding: 0 16px; }
+.serif { font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; }
+.muted { color: var(--ink-2); }
+.faint { color: var(--ink-3); }
+.row { display: flex; align-items: center; gap: 10px; }
+.between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+.card { background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); }
+.stack > * + * { margin-top: 12px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 52px; padding: 0 20px; border-radius: 16px;
+  background: var(--ink); color: #fff; font-weight: 600; font-size: 15px;
+  transition: transform .15s var(--ease), opacity .2s, background .2s;
+  user-select: none; -webkit-user-select: none;
+}
+.btn:active { transform: scale(.97); }
+.btn.block { width: 100%; }
+.btn.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.btn.soft { background: var(--bg-2); color: var(--ink); }
+.btn.olive { background: var(--olive); }
+.btn.sm { height: 40px; padding: 0 14px; border-radius: 12px; font-size: 13.5px; }
+.btn[disabled], .btn.dis { opacity: .38; pointer-events: none; }
+.btn .price { opacity: .9; font-weight: 500; }
+
+.icon-btn {
+  width: 42px; height: 42px; flex: none; border-radius: 14px; display: grid; place-items: center;
+  background: var(--card); box-shadow: var(--shadow); transition: transform .15s var(--ease);
+}
+.icon-btn:active { transform: scale(.92); }
+.icon-btn.flat { box-shadow: none; background: transparent; }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 15px; flex: none;
+  border-radius: 999px; background: var(--card); box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 13px; font-weight: 500; white-space: nowrap; transition: background .2s, color .2s, box-shadow .2s, transform .15s;
+}
+.chip:active { transform: scale(.96); }
+.chip.on { background: var(--ink); color: #fff; box-shadow: none; }
+.chip.sm { height: 32px; padding: 0 12px; font-size: 12.5px; }
+.chip[disabled] { opacity: .32; pointer-events: none; }
+
+.tag { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 600; background: var(--bg-2); color: var(--ink-2); white-space: nowrap; }
+.tag.olive { background: var(--olive-2); color: var(--olive); }
+.tag.dark { background: var(--ink); color: #fff; }
+.tag.warn { background: #F5E8D3; color: #8A5A1F; }
+.tag.red { background: var(--danger-2); color: var(--danger); }
+.tag .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+.hscroll { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.hscroll::-webkit-scrollbar { display: none; }
+
+.sec-h { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 30px 16px 14px; }
+.sec-h h2 { margin: 0; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 26px; line-height: 1.1; letter-spacing: .01em; }
+.sec-h .link { font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Image loading */
+.im { position: relative; overflow: hidden; background: var(--sand); }
+.im img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .45s ease; }
+.im img.ok { opacity: 1; }
+.im:not(.loaded)::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.45) 50%, transparent 80%);
+  background-size: 200% 100%; animation: shimmer 1.4s infinite linear;
+}
+@keyframes shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+.ph { display: grid; place-items: center; width: 100%; height: 100%; background: linear-gradient(145deg, #E9DFD3, #D9CCBD); color: rgba(28,27,25,.62); text-align: center; padding: 8px; }
+.ph span { font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-size: 15px; line-height: 1.15; }
+.ph.big span { font-size: 30px; }
+
+/* ---------- App bar (sub pages) ---------- */
+.appbar {
+  position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 8px;
+  padding: calc(var(--safe-t) + 8px) 12px 8px; background: rgba(244, 239, 233, .92);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.appbar h1 { flex: 1; margin: 0; text-align: center; font-size: 16px; font-weight: 600; }
+.appbar .icon-btn { box-shadow: none; background: transparent; }
+.appbar .spacer { width: 42px; }
+
+/* ---------- HOME ---------- */
+.home-top { padding: calc(var(--safe-t) + 14px) 16px 0; }
+.home-bar { display: flex; align-items: center; justify-content: space-between; }
+.home-bar .logo { height: 22px; width: auto; }
+.greet { margin: 20px 0 14px; }
+.greet small { display: block; font-size: 13px; color: var(--ink-2); }
+.greet h1 { margin: 2px 0 0; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 31px; line-height: 1.12; letter-spacing: .01em; }
+
+.store-card { position: relative; height: 196px; border-radius: var(--r-lg); overflow: hidden; color: #fff; box-shadow: var(--shadow); }
+.store-card .im { position: absolute; inset: 0; }
+.store-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(20,16,12,.78)); }
+.store-card .sc-in { position: absolute; z-index: 1; left: 16px; right: 16px; bottom: 14px; }
+.store-card .sc-tag { position: absolute; z-index: 1; top: 12px; left: 12px; }
+.store-card .sc-tag .tag { background: rgba(255,255,255,.92); }
+.store-card .sc-t { display: block; font-size: 17px; font-weight: 600; }
+.store-card .sc-a { margin-top: 2px; font-size: 12.5px; color: rgba(255,255,255,.82); display: flex; align-items: center; gap: 5px; }
+.store-card .sc-go { position: absolute; z-index: 1; right: 12px; top: 12px; width: 36px; height: 36px; border-radius: 12px; background: rgba(255,255,255,.92); color: var(--ink); display: grid; place-items: center; }
+
+.modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+.mode {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px 12px 13px;
+  background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); text-align: left;
+  transition: transform .15s var(--ease);
+}
+.mode:active { transform: scale(.96); }
+.mode .mi { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; background: var(--sand); }
+.mode:nth-child(1) .mi { background: #F9E3A6; }
+.mode:nth-child(2) .mi { background: #DCEBDD; }
+.mode:nth-child(3) .mi { background: #F8D7D2; }
+.mode b { display: block; font-size: 14px; font-weight: 600; line-height: 1.2; }
+.mode small { display: block; font-size: 11px; line-height: 1.35; color: var(--ink-3); margin-top: 2px; }
+
+.live { display: flex; align-items: center; gap: 12px; margin: 14px 16px 0; padding: 12px 14px; background: var(--card); border-radius: var(--r); box-shadow: var(--shadow); }
+.live .lv-ico { width: 40px; height: 40px; border-radius: 12px; background: var(--olive-2); color: var(--olive); display: grid; place-items: center; flex: none; }
+.live b { display: block; font-size: 13.5px; font-weight: 600; }
+.live small { display: block; font-size: 12px; color: var(--ink-2); }
+.pulse { position: relative; }
+.pulse::after { content: ""; position: absolute; inset: -3px; border-radius: 14px; border: 2px solid var(--olive); opacity: 0; animation: pulse 1.8s infinite; }
+@keyframes pulse { 0% { opacity: .6; transform: scale(.9); } 100% { opacity: 0; transform: scale(1.18); } }
+
+.carousel { padding: 0 16px; scroll-snap-type: x mandatory; scroll-padding: 0 16px; gap: 12px; }
+.slide { position: relative; flex: none; width: 86%; aspect-ratio: 4 / 3.15; border-radius: var(--r-lg); overflow: hidden; scroll-snap-align: start; box-shadow: var(--shadow); }
+.slide .im { position: absolute; inset: 0; }
+.slide::after { content: ""; position: absolute; inset: 55% 0 0; background: linear-gradient(180deg, transparent, rgba(0,0,0,.42)); pointer-events: none; }
+.slide .go { position: absolute; z-index: 1; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 4px; height: 34px; padding: 0 12px 0 14px; border-radius: 999px; background: rgba(255,255,255,.94); font-size: 12.5px; font-weight: 600; }
+.dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+.dots i { width: 6px; height: 6px; border-radius: 3px; background: var(--greige); transition: width .3s var(--ease), background .3s; }
+.dots i.on { width: 20px; background: var(--ink); }
+
+.sig-list { padding: 0 16px 4px; gap: 12px; }
+.sig { position: relative; flex: none; width: 152px; text-align: left; }
+.sig .im { width: 152px; height: 178px; border-radius: 18px; }
+.sig b { display: block; margin-top: 9px; font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.sig span { font-size: 13px; color: var(--ink-2); }
+.sig .add { position: absolute; top: 136px; right: 8px; }
+.sig .star { position: absolute; top: 8px; left: 8px; }
+
+.cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px 8px; padding: 0 16px; }
+.cat { display: flex; flex-direction: column; align-items: center; gap: 7px; text-align: center; font-size: 11.5px; font-weight: 500; line-height: 1.25; transition: transform .15s var(--ease); }
+.cat:active { transform: scale(.94); }
+.cat .im { width: 68px; height: 68px; border-radius: 22px; box-shadow: var(--shadow); }
+
+.story { margin: 34px 0 0; padding: 30px 16px 26px; background: var(--ink); color: #fff; }
+.story img.logo { height: 24px; width: auto; margin-bottom: 14px; }
+.story h2 { margin: 0 0 12px; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 29px; line-height: 1.15; }
+.story p { margin: 0 0 10px; color: rgba(255,255,255,.72); font-size: 13.5px; }
+.story .hscroll { margin: 18px -16px 20px; padding: 0 16px; }
+.story .ph-v { flex: none; height: 150px; border-radius: 16px; overflow: hidden; }
+.story .btn { background: #fff; color: var(--ink); }
+
+.visit { margin: 0 16px; overflow: hidden; }
+.visit iframe { display: block; width: 100%; height: 190px; border: 0; background: var(--sand); filter: grayscale(.35) contrast(1.02); }
+.visit .vi { padding: 14px 16px 16px; }
+.info-row { display: flex; align-items: flex-start; gap: 12px; padding: 9px 0; font-size: 13.5px; }
+.info-row .ico { color: var(--ink-3); margin-top: 1px; }
+.info-row b { font-weight: 600; }
+.btn-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.btn-row .btn { height: 46px; padding: 0 8px; font-size: 13px; }
+
+.foot { padding: 30px 16px 24px; text-align: center; color: var(--ink-3); font-size: 12px; }
+.foot img { height: 34px; margin: 0 auto 8px; opacity: .85; }
+
+/* ---------- MENU ---------- */
+.menu-head {
+  position: sticky; top: 0; z-index: 30; padding: calc(var(--safe-t) + 10px) 0 0;
+  background: rgba(244, 239, 233, .94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  transition: box-shadow .25s;
+}
+.menu-head.shadow { box-shadow: 0 6px 18px rgba(41,31,20,.08); }
+.mh-row { display: flex; align-items: center; gap: 10px; padding: 0 16px; }
+.seg {
+  position: relative; flex: 1; display: grid; grid-template-columns: 1fr 1fr; height: 46px; padding: 4px;
+  background: var(--bg-2); border-radius: 15px;
+}
+.seg::before {
+  content: ""; position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px);
+  background: var(--card); border-radius: 11px; box-shadow: 0 2px 8px rgba(41,31,20,.1);
+  transition: transform .3s var(--ease);
+}
+.seg[data-v="delivery"]::before { transform: translateX(100%); }
+.seg[data-v="preorder"]::before { opacity: 0; }
+.seg button { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--ink-3); transition: color .2s; }
+.seg button.on { color: var(--ink); }
+.ctx { display: flex; align-items: center; gap: 6px; margin: 8px 16px 0; font-size: 12.5px; color: var(--ink-2); min-height: 22px; }
+.ctx b { color: var(--ink); font-weight: 600; }
+.ctx .edit { margin-left: auto; font-weight: 600; color: var(--ink); display: inline-flex; align-items: center; gap: 3px; }
+.cat-chips { padding: 10px 16px 12px; gap: 8px; }
+
+.menu-body { padding: 0 16px 120px; }
+.grp-h { margin: 26px 0 0; padding-top: 4px; display: flex; align-items: center; gap: 10px; }
+.grp-h span { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); }
+.grp-h::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.cat-sec { scroll-margin-top: 150px; }
+.cat-sec > h2 { margin: 22px 0 2px; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 27px; line-height: 1.15; display: flex; align-items: center; gap: 8px; }
+.cat-sec > p { margin: 0; font-size: 12.5px; color: var(--ink-3); }
+.cat-sec > h2 .tag { font-family: var(--sans); font-style: normal; }
+.item {
+  display: grid; grid-template-columns: 96px 1fr; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line);
+  text-align: left; width: 100%;
+}
+.cat-sec .item:last-child { border-bottom: 0; }
+.item .im { width: 96px; height: 96px; border-radius: 16px; }
+.item .it-b { display: flex; flex-direction: column; min-width: 0; padding-top: 1px; }
+.item h3 { margin: 0; font-size: 14.5px; font-weight: 600; line-height: 1.3; }
+.item p { margin: 3px 0 0; font-size: 12px; line-height: 1.45; color: var(--ink-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.item .it-f { margin-top: auto; padding-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.item .pr { font-size: 14px; font-weight: 600; }
+.item .star { color: var(--caramel); }
+
+.add {
+  width: 34px; height: 34px; border-radius: 12px; display: grid; place-items: center; flex: none;
+  background: var(--ink); color: #fff; transition: transform .15s var(--ease);
+  box-shadow: 0 4px 12px rgba(28,27,25,.22);
+}
+.add:active { transform: scale(.86); }
+.add.light { background: #fff; color: var(--ink); }
+.add .n { font-size: 13px; font-weight: 700; }
+.qty { display: inline-flex; align-items: center; gap: 2px; height: 36px; border-radius: 12px; background: var(--bg-2); }
+.qty button { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 12px; transition: transform .12s; }
+.qty button:active { transform: scale(.85); }
+.qty b { min-width: 22px; text-align: center; font-size: 14px; font-weight: 600; }
+.qty.lg { height: 50px; border-radius: 16px; }
+.qty.lg button { width: 46px; height: 50px; }
+.qty.lg b { min-width: 26px; font-size: 16px; }
+
+.empty { text-align: center; padding: 50px 24px; color: var(--ink-2); }
+.empty .em-ico { width: 74px; height: 74px; margin: 0 auto 14px; border-radius: 24px; background: var(--card); box-shadow: var(--shadow); display: grid; place-items: center; color: var(--ink-3); }
+.empty h3 { margin: 0 0 4px; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 23px; color: var(--ink); }
+.empty p { margin: 0 0 18px; font-size: 13.5px; }
+
+/* ---------- Sheets ---------- */
+.backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(20, 16, 12, .48); opacity: 0; transition: opacity .3s ease; }
+.backdrop.in { opacity: 1; }
+.sheet {
+  position: fixed; z-index: 61; left: 50%; bottom: var(--kb, 0px); width: min(100%, var(--app-w));
+  max-height: 92vh; max-height: calc(var(--vvh, 100dvh) - var(--safe-t) - 24px); display: flex; flex-direction: column;
+  background: var(--card); border-radius: 26px 26px 0 0; box-shadow: var(--shadow-lg);
+  transform: translate(-50%, 104%); transition: transform .38s var(--ease), bottom .25s ease, max-height .25s ease;
+  will-change: transform;
+}
+.sheet.in { transform: translate(-50%, 0); }
+.sheet.drag { transition: none; }
+.sheet.full { height: 92vh; height: calc(var(--vvh, 100dvh) - var(--safe-t) - 24px); }
+.sheet-handle { position: absolute; z-index: 5; top: 0; left: 0; right: 0; height: 26px; display: grid; place-items: center; touch-action: none; }
+.sheet-handle::before { content: ""; width: 40px; height: 5px; border-radius: 3px; background: rgba(28,27,25,.18); }
+.sheet-handle.on-img::before { background: rgba(255,255,255,.75); }
+.sheet-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; border-radius: 26px 26px 0 0; }
+.sheet-head { padding: 26px 18px 6px; }
+.sheet-head h2 { margin: 0; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 26px; line-height: 1.15; }
+.sheet-head p { margin: 4px 0 0; color: var(--ink-2); font-size: 13.5px; }
+.sheet-x { position: absolute; z-index: 6; top: 14px; right: 14px; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.94); box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+.sheet-foot { padding: 12px 16px var(--pad-b); border-top: 1px solid var(--line); background: var(--card); display: flex; gap: 10px; align-items: center; }
+.sheet-pad { padding: 8px 18px 22px; }
+
+/* Item detail */
+.pd-img { width: 100%; aspect-ratio: 1 / .86; max-height: 46vh; max-height: 46dvh; }
+.pd-head { padding: 16px 18px 4px; }
+.pd-head h2 { margin: 0; font-size: 21px; font-weight: 600; line-height: 1.25; letter-spacing: .01em; }
+.pd-head .pr { margin-top: 4px; font-size: 17px; font-weight: 600; }
+.pd-head p { margin: 8px 0 0; font-size: 13.5px; color: var(--ink-2); }
+.pd-head .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.og { padding: 16px 18px 6px; border-top: 8px solid var(--bg); }
+.og:first-of-type { margin-top: 14px; }
+.og-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.og-h b { font-size: 15px; font-weight: 600; }
+.og-h .tag.req-miss { background: var(--danger-2); color: var(--danger); animation: shake .4s; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.opt { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 50px; padding: 6px 0; border-bottom: 1px solid var(--line); text-align: left; font-size: 14px; }
+.opt:last-child { border-bottom: 0; }
+.opt .lbl { flex: 1; }
+.opt .op { font-size: 13px; color: var(--ink-2); }
+.opt .mark { width: 22px; height: 22px; flex: none; border-radius: 50%; box-shadow: inset 0 0 0 1.8px var(--greige); display: grid; place-items: center; transition: box-shadow .2s, background .2s; }
+.opt.multi .mark { border-radius: 7px; }
+.opt.on .mark { background: var(--ink); box-shadow: none; color: #fff; }
+.opt .mark .ico { width: 14px; height: 14px; stroke-width: 3; opacity: 0; transform: scale(.5); transition: .2s var(--ease); }
+.opt.on .mark .ico { opacity: 1; transform: none; }
+.opt-grid { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 8px; }
+.notes { padding: 16px 18px 20px; border-top: 8px solid var(--bg); }
+.notes b { display: block; font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.notes .hscroll { margin: 10px -18px 0; padding: 0 18px; }
+
+.field { display: block; }
+.field > span { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
+.field > span em { font-style: normal; font-weight: 400; color: var(--ink-3); }
+.input, .textarea {
+  width: 100%; height: 52px; padding: 0 15px; border-radius: 14px; border: 0;
+  background: var(--card); box-shadow: inset 0 0 0 1.5px var(--line); font-size: 16px;
+  transition: box-shadow .2s; outline: none; -webkit-appearance: none; appearance: none;
+}
+.textarea { height: 88px; padding: 13px 15px; resize: none; line-height: 1.45; }
+.input:focus, .textarea:focus { box-shadow: inset 0 0 0 2px var(--ink); }
+.input.err, .textarea.err { box-shadow: inset 0 0 0 2px var(--danger); }
+.err-msg { display: block; margin-top: 5px; font-size: 12px; color: var(--danger); }
+.bg-in .input, .bg-in .textarea { background: var(--bg); box-shadow: inset 0 0 0 1.5px transparent; }
+.bg-in .input:focus, .bg-in .textarea:focus { box-shadow: inset 0 0 0 2px var(--ink); }
+
+/* Search */
+.search-top { display: flex; align-items: center; gap: 8px; padding: 22px 14px 10px; }
+.search-top .sbox { flex: 1; position: relative; }
+.search-top .sbox .ico { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--ink-3); }
+.search-top .input { padding-left: 44px; background: var(--bg); box-shadow: none; }
+.search-res { padding: 0 16px 30px; }
+.search-sug { padding: 6px 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Checkout ---------- */
+.co { padding: 4px 16px 140px; }
+.co .card { padding: 16px; }
+.co .card + .card { margin-top: 12px; }
+.co h3 { margin: 0 0 12px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.co h3 .tag { margin-left: auto; }
+.co .seg { flex: none; }
+.times { margin: 0 -16px; padding: 0 16px 2px; }
+.times .chip { height: 48px; flex-direction: column; justify-content: center; gap: 0; padding: 0 14px; line-height: 1.15; border-radius: 14px; }
+.times .chip small { font-size: 10.5px; font-weight: 500; opacity: .7; }
+.switch-row { display: flex; align-items: center; gap: 12px; padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--line); }
+.switch-row .grow b { display: block; font-size: 14px; font-weight: 500; }
+.switch-row .grow small { color: var(--ink-3); font-size: 12px; }
+.switch { position: relative; width: 50px; height: 30px; flex: none; border-radius: 15px; background: var(--greige); transition: background .25s; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,.18); transition: transform .25s var(--ease); }
+.switch.on { background: var(--olive); }
+.switch.on::after { transform: translateX(20px); }
+.ci { display: grid; grid-template-columns: 58px 1fr auto; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); align-items: start; }
+.ci:last-of-type { border-bottom: 0; }
+.ci .im { width: 58px; height: 58px; border-radius: 13px; }
+.ci b { display: block; font-size: 14px; font-weight: 600; line-height: 1.3; }
+.ci small { display: block; font-size: 12px; color: var(--ink-3); line-height: 1.4; margin-top: 2px; }
+.ci .ci-r { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.ci .ci-r .pr { font-size: 13.5px; font-weight: 600; }
+.ci .edit-l { font-size: 12px; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; margin-top: 6px; display: inline-block; }
+.add-more { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; height: 46px; margin-top: 8px; border-radius: 14px; background: var(--bg); font-weight: 600; font-size: 13.5px; }
+.pay { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 0; border-bottom: 1px solid var(--line); text-align: left; }
+.pay:last-child { border-bottom: 0; }
+.pay .pl { width: 42px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: .02em; flex: none; }
+.pay .grow b { display: block; font-size: 14px; font-weight: 500; }
+.pay .grow small { display: block; font-size: 11.5px; color: var(--ink-3); }
+.pay .mark { width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1.8px var(--greige); transition: .2s; flex: none; }
+.pay.on .mark { box-shadow: inset 0 0 0 7px var(--ink); }
+.sum-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 13.5px; color: var(--ink-2); }
+.sum-row.total { margin-top: 8px; padding-top: 12px; border-top: 1px dashed var(--greige); font-size: 16px; font-weight: 600; color: var(--ink); }
+.note-bar { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: #F5E8D3; color: #6E4A1C; font-size: 12.5px; line-height: 1.45; margin-bottom: 12px; }
+.note-bar.olive { background: var(--olive-2); color: var(--olive); }
+.note-bar .ico { margin-top: 1px; }
+
+.paybar {
+  position: fixed; z-index: 35; bottom: 0; left: 50%; transform: translateX(-50%); width: min(100%, var(--app-w));
+  padding: 12px 16px var(--pad-b); background: rgba(255,255,255,.96);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--line);
+  display: flex; align-items: center; gap: 14px;
+}
+.paybar .pb-t small { display: block; font-size: 11.5px; color: var(--ink-3); }
+.paybar .pb-t b { font-size: 18px; font-weight: 700; letter-spacing: .01em; }
+.paybar .btn { flex: 1; }
+body:not(.sub) .paybar { bottom: var(--tab-total); padding-bottom: 12px; }
+/* Saat keyboard iOS terbuka: sembunyikan bar bawah agar tidak melayang di atas keyboard */
+html.kb .tabbar, html.kb .cartbar, html.kb .paybar { display: none; }
+html.kb .sheet-foot { padding-bottom: 12px; }
+
+/* Payment sheet */
+.qr-wrap { margin: 6px auto 0; width: 230px; padding: 14px; border-radius: 20px; background: #fff; box-shadow: inset 0 0 0 1.5px var(--line); position: relative; }
+.qr-wrap canvas { width: 100%; height: auto; display: block; image-rendering: pixelated; }
+.qr-wrap .qr-logo { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 54px; height: 54px; border-radius: 12px; background: #fff; display: grid; place-items: center; box-shadow: 0 0 0 4px #fff; }
+.qr-wrap .qr-logo img { width: 46px; }
+.timer { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 999px; background: #F5E8D3; color: #8A5A1F; font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums; }
+.steps-ol { margin: 14px 0 0; padding: 0; list-style: none; counter-reset: s; }
+.steps-ol li { counter-increment: s; display: flex; gap: 10px; font-size: 13px; color: var(--ink-2); padding: 4px 0; }
+.steps-ol li::before { content: counter(s); width: 20px; height: 20px; flex: none; border-radius: 50%; background: var(--bg-2); color: var(--ink); font-size: 11px; font-weight: 600; display: grid; place-items: center; }
+
+.processing { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: rgba(244,239,233,.86); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); animation: fade-in .25s both; }
+.processing .pc { text-align: center; }
+.processing p { margin: 14px 0 0; font-weight: 600; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.spinner { width: 46px; height: 46px; margin: 0 auto; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--ink); animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Order tracking ---------- */
+.track-hero { text-align: center; padding: 6px 20px 4px; }
+.cup-ill { width: 128px; height: 128px; margin: 0 auto 4px; }
+.cup-ill .steam path { stroke: var(--ink-3); stroke-width: 2.5; fill: none; stroke-linecap: round; animation: steam 2.4s ease-in-out infinite; opacity: 0; }
+.cup-ill .steam path:nth-child(2) { animation-delay: .5s; }
+.cup-ill .steam path:nth-child(3) { animation-delay: 1s; }
+@keyframes steam { 0% { opacity: 0; transform: translateY(6px); } 40% { opacity: .9; } 100% { opacity: 0; transform: translateY(-10px); } }
+.cup-ill.done .steam { display: none; }
+.track-hero h1 { margin: 0; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 29px; line-height: 1.15; }
+.track-hero p { margin: 6px auto 0; max-width: 310px; color: var(--ink-2); font-size: 13.5px; }
+.queue { display: grid; grid-template-columns: 1fr 1px 1fr; margin: 18px 16px 0; padding: 16px 8px; text-align: center; }
+.queue i { background: var(--line); }
+.queue small { display: block; font-size: 11.5px; color: var(--ink-3); font-weight: 500; }
+.queue b { display: block; font-size: 30px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; }
+.queue b.code { font-size: 19px; line-height: 1.95; letter-spacing: .03em; }
+/* Kode pesanan baru (mis. IJN0-261011-0015) lebih panjang dari kode prototipe: tetap satu baris. */
+.queue b.code.long { font-size: 15px; line-height: 2.45; letter-spacing: 0; white-space: nowrap; }
+.tl { margin: 12px 16px 0; padding: 18px 16px 6px; }
+.tl-s { position: relative; display: flex; gap: 14px; padding-bottom: 18px; }
+.tl-s::before { content: ""; position: absolute; left: 11px; top: 24px; bottom: 0; width: 2px; background: var(--line); }
+.tl-s:last-child::before { display: none; }
+.tl-s .dot { position: relative; z-index: 1; width: 24px; height: 24px; flex: none; border-radius: 50%; background: var(--card); box-shadow: inset 0 0 0 2px var(--line); display: grid; place-items: center; color: #fff; }
+.tl-s.done .dot { background: var(--olive); box-shadow: none; }
+.tl-s.done::before { background: var(--olive); }
+.tl-s.cur .dot { background: var(--ink); box-shadow: 0 0 0 5px rgba(28,27,25,.12); }
+.tl-s.cur .dot::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+.tl-s b { display: block; font-size: 14px; font-weight: 600; line-height: 1.3; }
+.tl-s small { display: block; font-size: 12px; color: var(--ink-3); }
+.tl-s:not(.done):not(.cur) b { color: var(--ink-3); font-weight: 500; }
+
+.receipt { position: relative; margin: 12px 16px 0; padding: 18px 16px; }
+.receipt .rc-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.receipt .rc-h b { font-size: 15px; font-weight: 600; }
+.rc-line { display: flex; gap: 10px; padding: 7px 0; font-size: 13.5px; }
+.rc-line .q { width: 24px; flex: none; color: var(--ink-3); font-weight: 600; }
+.rc-line .n { flex: 1; min-width: 0; }
+.rc-line .n small { display: block; color: var(--ink-3); font-size: 12px; }
+.rc-sep { height: 1px; margin: 10px 0; background-image: linear-gradient(90deg, var(--greige) 50%, transparent 0); background-size: 8px 1px; }
+.kv { display: flex; justify-content: space-between; gap: 14px; padding: 5px 0; font-size: 13.5px; }
+.kv span:first-child { color: var(--ink-3); }
+.kv span:last-child { text-align: right; font-weight: 500; }
+.actions { display: grid; gap: 10px; margin: 16px 16px 0; }
+.actions.two { grid-template-columns: 1fr 1fr; }
+
+/* ---------- Reservation ---------- */
+.rsv-hero { position: relative; height: 250px; color: #fff; overflow: hidden; }
+.rsv-hero .im { position: absolute; inset: 0; }
+.rsv-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,16,12,.3), rgba(20,16,12,.2) 35%, rgba(20,16,12,.85)); }
+.rsv-hero .rh-in { position: absolute; z-index: 1; left: 18px; right: 18px; bottom: 34px; }
+.rsv-hero .rh-in img { height: 20px; width: auto; margin-bottom: 10px; }
+.rsv-hero h1 { margin: 0; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 34px; line-height: 1.1; }
+.rsv-hero p { margin: 6px 0 0; font-size: 13.5px; color: rgba(255,255,255,.85); }
+.rsv-body { position: relative; z-index: 2; margin-top: -20px; padding: 0 16px 170px; }
+.rsv-body .card { padding: 16px; }
+.rsv-body .card + .card { margin-top: 12px; }
+.rsv-body h3 { margin: 0 0 12px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.rsv-body h3 .n { width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 11.5px; display: grid; place-items: center; }
+.dates { margin: 0 -16px; padding: 0 16px 2px; gap: 8px; }
+.date {
+  flex: none; width: 60px; height: 78px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: var(--bg); transition: background .2s, color .2s, transform .15s; line-height: 1.15;
+}
+.date:active { transform: scale(.94); }
+.date small { font-size: 11px; font-weight: 500; color: var(--ink-3); }
+.date b { font-size: 21px; font-weight: 600; margin: 2px 0; }
+.date.on { background: var(--ink); color: #fff; }
+.date.on small { color: rgba(255,255,255,.7); }
+.slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.slots .chip { justify-content: center; padding: 0; height: 42px; border-radius: 12px; background: var(--bg); box-shadow: none; }
+.slots .chip.on { background: var(--ink); }
+.slot-lbl { font-size: 11.5px; color: var(--ink-3); font-weight: 500; margin: 12px 0 8px; }
+.slot-lbl:first-child { margin-top: 0; }
+.guests { display: flex; align-items: center; gap: 14px; }
+.guests .qty { background: var(--bg); }
+.guests .g-txt b { display: block; font-size: 15px; font-weight: 600; }
+.guests .g-txt small { color: var(--ink-3); font-size: 12px; }
+.areas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.area { position: relative; border-radius: 16px; overflow: hidden; text-align: left; box-shadow: inset 0 0 0 2px transparent; transition: box-shadow .2s, transform .15s; background: var(--bg); }
+.area:active { transform: scale(.96); }
+.area .im { height: 74px; }
+.area span { display: block; padding: 8px 10px 9px; font-size: 12.5px; font-weight: 600; line-height: 1.2; }
+.area span small { display: block; font-weight: 400; color: var(--ink-3); font-size: 11px; }
+.area.on { box-shadow: inset 0 0 0 2px var(--ink), 0 6px 14px rgba(28,27,25,.12); }
+.area.on::after { content: ""; position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center/12px no-repeat; }
+.occ { display: flex; flex-wrap: wrap; gap: 8px; }
+.occ .chip { background: var(--bg); box-shadow: none; }
+.occ .chip.on { background: var(--ink); }
+.form-grid { display: grid; gap: 12px; }
+
+.ticket { position: relative; margin: 8px 16px 0; background: var(--card); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; }
+.ticket .tk-top { position: relative; padding: 22px 20px 20px; background: var(--ink); color: #fff; }
+.ticket .tk-top img { height: 18px; width: auto; }
+.ticket .tk-top .tag { position: absolute; top: 20px; right: 18px; }
+.ticket .tk-top h2 { margin: 18px 0 0; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 30px; line-height: 1.1; }
+.ticket .tk-top p { margin: 4px 0 0; color: rgba(255,255,255,.72); font-size: 13.5px; }
+.ticket .tk-cut { position: relative; height: 22px; }
+.ticket .tk-cut::before, .ticket .tk-cut::after { content: ""; position: absolute; top: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); }
+.ticket .tk-cut::before { left: -11px; }
+.ticket .tk-cut::after { right: -11px; }
+.ticket .tk-cut i { position: absolute; left: 18px; right: 18px; top: 10px; height: 1px; background-image: linear-gradient(90deg, var(--greige) 50%, transparent 0); background-size: 8px 1px; }
+.ticket .tk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; padding: 4px 20px 6px; }
+.ticket .tk-grid small { display: block; font-size: 11.5px; color: var(--ink-3); }
+.ticket .tk-grid b { display: block; font-size: 14.5px; font-weight: 600; line-height: 1.3; }
+.ticket .tk-code { margin: 14px 20px 20px; padding: 12px 14px; border-radius: 14px; background: var(--bg); display: flex; align-items: center; justify-content: space-between; }
+.ticket .tk-code b { font-size: 18px; letter-spacing: .08em; }
+
+/* ---------- Orders list ---------- */
+.list-head { padding: calc(var(--safe-t) + 18px) 16px 6px; }
+.list-head h1 { margin: 0 0 14px; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 32px; line-height: 1.1; }
+.list-head .seg { height: 46px; }
+.list-head .seg[data-v="rsv"]::before { transform: translateX(100%); }
+.olist { padding: 12px 16px 30px; }
+.oc { display: block; width: 100%; text-align: left; padding: 14px; }
+.oc + .oc { margin-top: 10px; }
+.oc .oc-h { display: flex; align-items: center; gap: 10px; }
+.oc .oc-h .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--bg); display: grid; place-items: center; flex: none; }
+.oc .oc-h b { display: block; font-size: 14px; font-weight: 600; }
+.oc .oc-h small { display: block; font-size: 12px; color: var(--ink-3); }
+.oc .oc-items { margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oc .oc-f { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; font-size: 13.5px; font-weight: 600; }
+.list-sub { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin: 14px 2px 10px; }
+.list-sub:first-child { margin-top: 2px; }
+
+/* ---------- Account ---------- */
+.acc-head { padding: calc(var(--safe-t) + 18px) 16px 0; }
+.acc-head h1 { margin: 0 0 14px; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-weight: 900; font-size: 32px; }
+.profile { display: flex; align-items: center; gap: 14px; padding: 16px; }
+.avatar { width: 54px; height: 54px; border-radius: 18px; background: var(--ink); color: #fff; display: grid; place-items: center; font-family: var(--serif); font-style: normal; text-transform: uppercase; letter-spacing: .01em; font-size: 25px; flex: none; }
+.profile b { display: block; font-size: 16px; font-weight: 600; }
+.profile small { color: var(--ink-3); font-size: 12.5px; }
+.menu-list { margin: 12px 16px 0; padding: 4px 16px; }
+.ml { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px; padding: 8px 0; border-bottom: 1px solid var(--line); text-align: left; font-size: 14px; }
+.ml:last-child { border-bottom: 0; }
+.ml .ml-i { width: 36px; height: 36px; border-radius: 11px; background: var(--bg); display: grid; place-items: center; flex: none; }
+.ml .grow small { display: block; font-size: 12px; color: var(--ink-3); line-height: 1.35; }
+.ml > .ico:last-child { color: var(--ink-3); }
+.hours { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.hours td { padding: 7px 0; border-bottom: 1px solid var(--line); }
+.hours tr:last-child td { border-bottom: 0; }
+.hours td:last-child { text-align: right; font-weight: 500; }
+.hours tr.today td { font-weight: 600; }
+
+/* ---------- Toast & fly ---------- */
+.toast {
+  position: fixed; z-index: 95; left: 50%; top: calc(var(--safe-t) + 12px);
+  transform: translate(-50%, -140%); max-width: calc(min(100%, var(--app-w)) - 32px);
+  display: flex; align-items: center; gap: 8px; padding: 11px 16px; border-radius: 14px;
+  background: var(--ink); color: #fff; font-size: 13.5px; font-weight: 500;
+  box-shadow: 0 12px 30px rgba(0,0,0,.2); transition: transform .4s var(--ease), opacity .3s, visibility .4s; pointer-events: none;
+  opacity: 0; visibility: hidden;
+}
+.toast.in { transform: translate(-50%, 0); opacity: 1; visibility: visible; }
+.toast .ico { color: #B9D3A4; }
+.fly { position: fixed; z-index: 96; width: 54px; height: 54px; border-radius: 14px; overflow: hidden; pointer-events: none; box-shadow: 0 8px 20px rgba(0,0,0,.25); }
+.fly img { width: 100%; height: 100%; object-fit: cover; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+@media (max-width: 360px) {
+  .mode small { display: none; }
+  .greet h1 { font-size: 27px; }
+  .cats { grid-template-columns: repeat(4, 1fr); }
+  .cat .im { width: 60px; height: 60px; }
+}
+
+/* ---------- iPhone: area sentuh minimal ±44pt ---------- */
+.add, .qty button, .ctx .edit, .edit-l, .cat-chips .chip { position: relative; }
+.add::after, .ctx .edit::after, .edit-l::after { content: ""; position: absolute; inset: -8px; }
+.qty button::after { content: ""; position: absolute; inset: -6px -2px; }
+.cat-chips .chip::after { content: ""; position: absolute; inset: -6px -3px; }
+.add { width: 36px; height: 36px; }
+
+/* ---------- iPhone: ajakan pasang ke Home Screen ---------- */
+.ios-tip { display: flex; align-items: center; gap: 12px; margin: 14px 16px 0; padding: 12px 12px 12px 14px; }
+.ios-tip img { width: 44px; height: 44px; border-radius: 11px; flex: none; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+.ios-tip b { display: block; font-size: 13.5px; font-weight: 600; }
+.ios-tip small { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+.ios-tip small .ico { width: 14px; height: 14px; vertical-align: -2px; }
+.ios-tip .icon-btn { width: 34px; height: 34px; box-shadow: none; background: var(--bg); }
+
+/* Label prototipe (versi demo publik) */
+
+/* ---------- Tema Robucca ---------- */
+.splash { background: #01512C; }
+.splash img { width: 46%; max-width: 200px; }
+.home-bar .logo { height: 36px; width: auto; }
+.story img.logo { height: 36px; }
+.rsv-hero .rh-in img { height: 30px; }
+.ticket .tk-top img { height: 28px; }
+.foot img { height: 44px; }
+.desk-logo { width: 220px; }
+.ph { background: linear-gradient(145deg, #F3E2C1, #E9CF98); color: #01512C; }
+.item .star { color: var(--caramel); }
+/* bintang kuning khas Robucca di kartu toko */
+.store-card .sc-tag .tag.olive { background: #FCDB6A; color: #0C3A23; }
+.tag.dark { background: #01512C; }
+
+/* ---------- Delivery (GoSend / GrabExpress) ---------- */
+.loc-btn { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; margin-top: 10px; padding: 8px 14px; border-radius: 14px; background: var(--olive-2); color: var(--olive); font-size: 13px; font-weight: 600; text-align: left; line-height: 1.3; transition: transform .15s var(--ease); }
+.loc-btn:active { transform: scale(.98); }
+.pay .cf { font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+.driver { display: flex; align-items: center; gap: 12px; margin: 12px 16px 0; padding: 14px; }
+.driver .dv-av { width: 46px; height: 46px; flex: none; border-radius: 15px; display: grid; place-items: center; background: var(--olive-2); color: var(--olive); font-weight: 700; font-size: 15px; }
+.driver b { display: block; font-size: 14px; font-weight: 600; }
+.driver small { display: block; font-size: 12px; color: var(--ink-3); line-height: 1.4; }
+.driver .icon-btn { background: var(--bg); box-shadow: none; }
+.proto-note { margin: 8px 20px 0; font-size: 11.5px; line-height: 1.45; color: var(--ink-3); }
+.addr-search { position: relative; }
+.addr-search > .ico { position: absolute; left: 14px; top: 15px; color: var(--ink-3); pointer-events: none; }
+.addr-search .input { padding-left: 42px; padding-right: 38px; }
+.addr-search .input::-webkit-search-cancel-button { -webkit-appearance: none; }
+.addr-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--bg-2); color: var(--ink-2); -webkit-user-select: none; user-select: none; }
+.addr-clear:active { opacity: .6; }
+.sugg { margin-top: 6px; border-radius: 14px; background: var(--bg); overflow: hidden; }
+.sugg .sg { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--line); }
+.sugg .sg .ico { color: var(--ink-3); margin-top: 1px; }
+.sugg .sg b { display: block; font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.sugg .sg small { display: block; font-size: 12px; color: var(--ink-3); line-height: 1.35; }
+.sugg .sg:active { background: var(--bg-2); }
+.sugg .sg-by { padding: 7px 14px; font-size: 10.5px; color: var(--ink-3); text-align: right; }
+.addr-map { margin-top: 10px; height: 170px; border-radius: 14px; overflow: hidden; background: var(--sand); }
+.addr-map iframe { display: block; width: 100%; height: 100%; border: 0; }
+.addr-km { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12.5px; font-weight: 600; color: var(--olive); }
+.map-l { font-size: 12.5px; font-weight: 600; color: var(--olive); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------- Kartu rute delivery: toko → alamat (ala Fore) ---------- */
+.route { padding: 2px 16px; }
+#route-slot .route { margin-top: 14px; }
+.co-route { margin-top: 12px; }
+.co-route + .card { margin-top: 12px; }
+.rt-row { position: relative; display: flex; align-items: flex-start; gap: 14px; width: 100%; min-height: 72px; padding: 14px 0; text-align: left; color: var(--ink); }
+.rt-row > .ico:last-child { align-self: center; color: var(--ink-2); }
+.rt-row + .rt-row::before { content: ""; position: absolute; top: 0; left: 58px; right: 0; height: 1px; background: var(--line); }
+.rt-ic { position: relative; width: 44px; height: 44px; flex: none; border-radius: 50%; display: grid; place-items: center; }
+.rt-ic.store { background: var(--olive-2); color: var(--olive); }
+.rt-ic.pin { background: var(--danger-2); color: var(--danger); }
+.rt-row + .rt-row .rt-ic::before { content: ""; position: absolute; left: 50%; bottom: calc(100% + 3px); height: 22px; border-left: 2px dotted var(--ink-3); transform: translateX(-1px); }
+.rt-row b { display: block; font-size: 15px; font-weight: 600; line-height: 1.3; }
+.rt-row small { display: block; margin-top: 3px; font-size: 13px; color: var(--ink-2); line-height: 1.4; }
+.rt-row .ok { color: var(--olive); font-weight: 600; }
+.rt-row .bad { color: var(--danger); font-weight: 600; }
+.clamp2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.oor { text-align: center; padding: 26px 6px 6px; }
+.oor h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; color: var(--ink); }
+.oor p { margin: 0 auto 18px; max-width: 330px; font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+.oor-b { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.oor-b .btn { height: 50px; border-radius: 999px; }
+
+/* ---------- iPhone: penyempurnaan delivery ---------- */
+.rt-row small.clamp1, .rt-row small.clamp2 { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.rt-row small.clamp1 { -webkit-line-clamp: 1; }
+.rt-row small.clamp2 { -webkit-line-clamp: 2; }
+.rt-row, .sg, .loc-btn, .map-open { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.rt-row { transition: opacity .15s; }
+.rt-row:active { opacity: .55; }
+.loc-btn:active, .sg:active { opacity: .7; }
+.addr-map { position: relative; }
+.sheet .addr-map { height: 230px; }
+.addr-map iframe { pointer-events: none; } /* iOS: geser di atas peta tetap menggulir sheet */
+.addr-map > div:not(.map-hint) { width: 100%; height: 100%; } /* wadah peta interaktif (drag pin) memenuhi .addr-map; pintu petunjuk .map-hint tetap berukuran pill */
+.map-hint {
+  position: absolute; left: 10px; right: 10px; bottom: 10px;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 11px; border-radius: 999px;
+  background: rgba(255,255,255,.95); color: var(--ink);
+  font-size: 12px; font-weight: 600; box-shadow: 0 2px 10px rgba(0,0,0,.15);
+  pointer-events: none; /* ketuk menerobos ke peta */
+}
+.map-open { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 5px; height: 34px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.95); color: var(--ink); font-size: 12.5px; font-weight: 600; box-shadow: 0 2px 10px rgba(0,0,0,.15); }
+.kv.kv-col { flex-direction: column; justify-content: flex-start; gap: 2px; }
+.kv.kv-col span:last-child { text-align: left; }
+
+/* Tambahan untuk aplikasi Next.js (fitur yang tidak ada di prototipe). Kelas & variabel mengikuti pwa.css. */
+
+/* Splash cukup sekali per sesi (skrip di <head> memasang html.no-splash). */
+html.no-splash .splash { display: none; }
+
+/* Tautan-tombol kecil di dalam teks */
+.text-btn { display: inline; padding: 0; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; color: inherit; }
+
+/* Pembayaran: gambar QRIS statis cabang */
+.qris-img { display: block; width: min(100%, 260px); margin: 14px auto 0; border-radius: 16px; background: #fff; box-shadow: var(--shadow); }
+.pay-amt { margin-top: 14px; }
+.pay-amt small { display: block; }
+.pay-amt b { display: block; font-size: 26px; font-weight: 700; letter-spacing: -.01em; }
+.pay-wait { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 14px 0 0; font-size: 12.5px; color: var(--ink-2); }
+.pay-wait .spinner { width: 16px; height: 16px; margin: 0; border-width: 2px; }
+
+/* OTP */
+.otp-input { letter-spacing: .5em; text-align: center; font-size: 22px; font-weight: 600; }
+.otp-dev { margin-top: 10px; font-size: 12px; color: var(--ink-3); text-align: center; }
+
+/* Alamat tersimpan & cabang di lembar */
+.saved-addr { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 11px 0; border-bottom: 1px solid var(--line); text-align: left; }
+.saved-addr:last-child { border-bottom: 0; }
+.saved-addr b { display: block; font-size: 13.5px; font-weight: 600; }
+.saved-addr small { display: block; font-size: 12px; color: var(--ink-3); line-height: 1.35; }
+
+/* Pesan galat saat data server gagal dimuat */
+.load-err { margin: 18px 16px 0; }
+.load-err .btn { margin-top: 10px; }
+.card .load-err { margin: 10px 0 0; }
+.load-err > span { display: block; font-size: 13px; color: var(--ink-2); }
+
+/* Menu sedang habis */
+.item.out .im, .sig.out .im { filter: grayscale(.7); opacity: .7; }
+.item .sold, .sig .sold { font-size: 12px; font-weight: 600; color: var(--danger); }
+.ci .warn-t { display: block; font-size: 11.5px; font-weight: 600; color: var(--danger); }
+
+/* Menu memuat (kerangka) */
+.skel { border-radius: 14px; background: linear-gradient(90deg, var(--sand), var(--bg-2), var(--sand)); background-size: 200% 100%; animation: skel 1.2s linear infinite; }
+@keyframes skel { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.sig .sold { position: absolute; top: 142px; right: 8px; padding: 4px 9px; border-radius: 999px; background: #fff; color: var(--danger); font-size: 11.5px; }
+
+/* Reservasi: cabang tujuan di atas foto (bisa diganti) */
+.rsv-hero .rh-branch { display: inline-flex; align-items: center; gap: 6px; height: 32px; margin-top: 12px; padding: 0 12px; border-radius: 999px; background: rgba(255,255,255,.18); color: #fff; font-size: 12.5px; font-weight: 600; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+
+
+/* =========================================================
+   Perluasan RBC Group: tema per brand + komponen multi-brand.
+   Tema hanya mengganti token yang sudah dipakai pwa.css, jadi seluruh kerangka Robucca ikut berganti warna & huruf.
+   Token Kalm/Zumma sama dengan tema POS (apps/pos/src/styles/pos.css).
+   ========================================================= */
+:root { --rbc: #152D22; --rbc-cream: #EFE8DF; --app-w: 460px; }
+html[data-brand="kalm"] {
+  --bg: #E5DFD2; --bg-2: #D9D1C0; --card: #F8F5EE; --ink: #3B1A0A; --ink-2: #5C3F2E; --ink-3: #6E5444;
+  --line: #D2C8B5; --greige: #BFB29C; --sand: #E4DDCF; --olive: #52230F; --olive-2: #EADBCF; --caramel: #B9773A;
+  --serif: "Radio Canada Big", "Inter", system-ui, sans-serif; --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+html[data-brand="zumma"] {
+  --bg: #F5EBD9; --bg-2: #EBDDC4; --card: #FFFBF4; --ink: #3D1611; --ink-2: #5E3A33; --ink-3: #6F5148;
+  --line: #E6D5BB; --greige: #D3BFA0; --sand: #F0E4D0; --olive: #862F26; --olive-2: #F3DDD5; --caramel: #B8762E;
+  --serif: "Jost", "Inter", system-ui, sans-serif; --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+html, body { background: var(--bg); transition: background-color .35s ease; }
+.app, .menu-head, .appbar { transition: background-color .35s ease; }
+.menu-head, .appbar { background: color-mix(in srgb, var(--bg) 94%, transparent); }
+.splash { background: var(--rbc); }
+.splash img { width: 52%; max-width: 220px; }
+.tag.dark { background: var(--olive); }
+.ph { background: linear-gradient(145deg, var(--sand), var(--bg-2)); color: var(--olive); }
+html:not([data-brand="robucca"]) .store-card .sc-tag .tag.olive { background: var(--card); color: var(--olive); }
+html:not([data-brand="robucca"]) .mode:nth-child(1) .mi { background: var(--olive-2); }
+html:not([data-brand="robucca"]) .mode:nth-child(2) .mi { background: var(--sand); }
+html:not([data-brand="robucca"]) .mode:nth-child(3) .mi { background: var(--bg-2); }
+html[data-brand="kalm"] h1, html[data-brand="kalm"] h2 { font-weight: 700; }
+html[data-brand="zumma"] .sec-h h2, html[data-brand="zumma"] .greet h1, html[data-brand="zumma"] .cat-sec > h2,
+html[data-brand="zumma"] .list-head h1, html[data-brand="zumma"] .acc-head h1, html[data-brand="zumma"] .sheet-head h2,
+html[data-brand="zumma"] .track-hero h1, html[data-brand="zumma"] .rsv-hero h1, html[data-brand="zumma"] .story h2,
+html[data-brand="zumma"] .ticket .tk-top h2, html[data-brand="zumma"] .empty h3 { font-weight: 600; letter-spacing: .05em; }
+html[data-brand="zumma"] .greet h1 { font-size: 27px; }
+a { cursor: pointer; }
+button { cursor: pointer; }
+
+/* Logo brand di atas warna brand (logo resmi versi terang) */
+.blogo { display: grid; place-items: center; background: var(--b); border-radius: 12px; flex: none; }
+.blogo img { max-width: 78%; max-height: 74%; width: auto; height: auto; }
+
+/* Pemilih brand di beranda: satu ketukan, seluruh tampilan ikut brand */
+.brands { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 14px; }
+.brand-btn { display: flex; flex-direction: column; align-items: stretch; gap: 7px; padding: 6px 6px 9px; border-radius: 18px; background: var(--card);
+  box-shadow: var(--shadow); text-align: center; transition: transform .15s var(--ease), box-shadow .25s; min-height: 44px; }
+.brand-btn:active { transform: scale(.96); }
+.brand-btn .blogo { height: 52px; border-radius: 13px; }
+.brand-btn b { font-size: 13px; font-weight: 600; line-height: 1.15; }
+.brand-btn small { display: block; font-size: 11px; font-weight: 400; color: var(--ink-3); margin-top: 1px; }
+.brand-btn[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--ink), 0 8px 18px rgba(28, 27, 25, .14); }
+.brand-btn.off .blogo { filter: grayscale(1); opacity: .45; }
+
+/* Kartu toko untuk Kalm/Zumma: foto produk di atas warna brand */
+.store-card.collage { background: var(--olive); }
+.store-card.collage::after { background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(15,8,5,.72)); }
+.store-card .col3 { position: absolute; inset: 0; display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 0; }
+.store-card .col3 img { width: 100%; height: 100%; object-fit: cover; }
+.store-card .col3 img + img { border-left: 3px solid var(--olive); }
+
+/* Menu: pemilih brand ringkas di kepala menu */
+.bseg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 16px 0; }
+.bseg button { display: flex; align-items: center; justify-content: center; gap: 7px; height: 44px; border-radius: 14px; background: var(--bg-2);
+  font-size: 13px; font-weight: 600; color: var(--ink-2); transition: background .2s, color .2s, box-shadow .2s; }
+.bseg button .blogo { width: 34px; height: 26px; border-radius: 8px; }
+.bseg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 2px 8px rgba(41, 31, 20, .12), inset 0 0 0 1.5px var(--ink); }
+
+/* Banner grup untuk Kalm/Zumma (tanpa foto banner resmi): warna brand + foto produk */
+.slide.made { background: var(--b); color: var(--on); }
+.slide.made::after { display: none; }
+.slide.made .go { color: var(--b); }
+.sec-h a { padding: 12px 0 12px 12px; margin: -12px 0; }
+.slide.made .mk-t { padding-right: 8px; }
+.slide.made .mk { position: absolute; inset: 0; display: grid; grid-template-columns: 1.1fr 1fr; }
+.slide.made .mk-t { padding: 18px 0 18px 18px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; position: relative; z-index: 1; }
+.slide.made .mk-t img { width: 84px; height: auto; }
+.slide.made .mk-t b { font-family: var(--f); font-size: 22px; line-height: 1.05; text-transform: uppercase; font-weight: 700; letter-spacing: .02em; }
+.slide.made .mk-t small { font-size: 12px; opacity: .85; }
+.slide.made .mk-p { position: relative; }
+.slide.made .mk-p img { position: absolute; inset: 14px 14px 56px 0; width: calc(100% - 14px); height: calc(100% - 70px); object-fit: cover; border-radius: 18px; }
+.slide .bchip { position: absolute; z-index: 2; left: 12px; top: 12px; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px 0 4px; border-radius: 999px;
+  background: rgba(255,255,255,.94); color: #1c1b19; font-size: 11.5px; font-weight: 600; }
+.slide .bchip .blogo { width: 32px; height: 20px; border-radius: 999px; }
+
+/* Brand lain: pesan barengan */
+.also { display: grid; gap: 10px; padding: 0 16px; }
+.also-c { display: grid; grid-template-columns: 76px 1fr; gap: 12px; align-items: center; padding: 12px; text-align: left; width: 100%; }
+.also-c .blogo { width: 76px; height: 76px; border-radius: 18px; }
+.also-c b { display: block; font-size: 15px; font-weight: 600; }
+.also-c small { display: block; font-size: 12px; color: var(--ink-3); line-height: 1.4; }
+.also-c .thumbs { display: flex; gap: 6px; margin-top: 8px; }
+.also-c .thumbs .im { width: 40px; height: 40px; border-radius: 11px; }
+.also-note { display: flex; gap: 8px; align-items: center; margin: 0 16px 10px; font-size: 12.5px; color: var(--ink-2); }
+
+/* Kartu RBC Poin (menggantikan cerita toko: sama di tiga brand) */
+.rbc-band { margin: 34px 0 0; padding: 26px 16px; background: var(--rbc); color: var(--rbc-cream); }
+.rbc-band img.logo { height: 30px; width: auto; margin-bottom: 14px; }
+.rbc-band h2 { margin: 0 0 8px; font-family: "Poppins", var(--sans); font-size: 22px; line-height: 1.2; font-weight: 600; }
+.rbc-band p { margin: 0 0 16px; color: rgba(239,232,223,.75); font-size: 13.5px; }
+.rbc-band .pts-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.rbc-band .pts-row span { flex: 1; padding: 10px; border-radius: 14px; background: rgba(239,232,223,.08); font-size: 11.5px; line-height: 1.3; }
+.rbc-band .pts-row b { display: block; font-size: 17px; font-weight: 600; color: #fff; }
+.rbc-band .btn { background: var(--rbc-cream); color: var(--rbc); }
+
+/* Keranjang: kelompok per outlet */
+.og-brand { display: flex; align-items: center; gap: 10px; padding: 12px 0 4px; }
+.og-brand + .ci, .og-brand ~ .ci { }
+.og-brand .blogo { width: 44px; height: 30px; border-radius: 9px; }
+.og-brand b { flex: 1; font-size: 14px; font-weight: 600; }
+.og-brand small { font-size: 12px; color: var(--ink-3); }
+.og-sep { height: 8px; margin: 10px -16px 0; background: var(--bg); }
+.vch { display: flex; align-items: center; gap: 12px; width: 100%; padding: 4px 0; text-align: left; min-height: 48px; }
+.vch .vi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--olive-2); color: var(--olive); flex: none; }
+.vch b { display: block; font-size: 14px; font-weight: 600; }
+.vch small { display: block; font-size: 12px; color: var(--ink-3); }
+.ptsi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: #F2D27A; color: var(--rbc); font-weight: 700; font-size: 14px; flex: none; font-family: "Poppins", sans-serif; }
+.sample { display: inline-flex; align-items: center; height: 18px; padding: 0 6px; border-radius: 5px; background: var(--bg-2); color: var(--ink-3); font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; vertical-align: 2px; }
+
+/* Status: per outlet */
+.subo { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.subo:last-child { border-bottom: 0; }
+.subo .blogo { width: 44px; height: 44px; }
+.subo b { display: block; font-size: 14px; font-weight: 600; }
+.subo small { display: block; font-size: 12px; color: var(--ink-3); }
+.subo .code { font-size: 15px; font-weight: 700; letter-spacing: .04em; }
+
+/* Pesanan: logo brand di ikon kartu */
+.oc .oc-h .ic.multi { width: 52px; background: none; position: relative; }
+.oc .oc-h .ic .blogo { width: 40px; height: 40px; }
+.oc .oc-h .ic.multi .blogo { position: absolute; width: 30px; height: 30px; border-radius: 9px; box-shadow: 0 0 0 2px var(--card); }
+.oc .oc-h .ic.multi .blogo:nth-child(1) { left: 0; top: 0; }
+.oc .oc-h .ic.multi .blogo:nth-child(2) { left: 14px; top: 10px; }
+.oc .oc-h .ic.multi .blogo:nth-child(3) { left: 24px; top: 0; }
+
+/* Akun: kartu member RBC */
+.member { margin: 0 16px; padding: 18px; border-radius: 22px; color: var(--rbc-cream); background: radial-gradient(120% 140% at 100% 0%, #2F5D46 0%, var(--rbc) 60%); position: relative; overflow: hidden; }
+.member .mk { position: absolute; right: -28px; bottom: -28px; width: 140px; opacity: .1; }
+.member .tier { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #E9C46A; }
+.member .big { font-family: "Poppins", sans-serif; font-size: 30px; font-weight: 600; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
+.member .bar { height: 6px; border-radius: 6px; background: rgba(239,232,223,.18); margin: 12px 0 6px; overflow: hidden; }
+.member .bar i { display: block; height: 100%; background: #E9C46A; border-radius: 6px; }
+.member small { font-size: 12px; opacity: .8; }
+.member .bl { display: flex; gap: 6px; margin-top: 12px; }
+.member .bl .blogo { width: 50px; height: 30px; border-radius: 8px; }
+
+/* Cari lintas brand */
+.sr-brand { display: flex; align-items: center; gap: 8px; margin: 16px 0 2px; font-size: 12px; font-weight: 600; color: var(--ink-3); letter-spacing: .08em; text-transform: uppercase; }
+.sr-brand .blogo { width: 36px; height: 22px; border-radius: 7px; }
+
+/* Lembar outlet */
+.orow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 0; border-bottom: 1px solid var(--line); text-align: left; }
+.orow:last-child { border-bottom: 0; }
+.orow .oi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--bg); flex: none; }
+.orow b { display: block; font-size: 14.5px; font-weight: 600; }
+.orow small { display: block; font-size: 12px; color: var(--ink-3); }
+.orow.on .oi { background: var(--ink); color: #fff; }
+.city { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); margin: 14px 0 2px; }
+
+/* Panel prototipe di desktop (memakai .desk bawaan PWA) */
+.desk { width: 320px; }
+.desk-logo { width: 200px !important; }
+.desk h3 { margin: 18px 0 8px; font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.desk .flows { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.desk .flows button { text-align: left; padding: 8px 10px; border-radius: 12px; background: var(--card); box-shadow: var(--shadow); font-size: 12.5px; font-weight: 600; min-height: 44px; }
+.desk .flows small { display: block; font-weight: 400; color: var(--ink-3); font-size: 11px; }
+.desk ul { margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--ink-2); display: grid; gap: 6px; }
+.desk ul b { color: var(--ink); }
+@media (min-width: 1000px) { body { background: var(--bg-2); } }
+</style>
+
+<div class="splash" id="splash"><img src="" alt="RBC Group" id="splash-img"></div>
+<div id="root"></div>
+
+<script src="data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+<script>
+const ICONS = {
+  home: '<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  coffee: '<path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><path d="M6 2v3M10 2v3M14 2v3"/>',
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2.5"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  receipt: '<path d="M5 2.5v19l2.3-1.5 2.4 1.5 2.3-1.5 2.3 1.5 2.4-1.5 2.3 1.5v-19l-2.3 1.5-2.4-1.5-2.3 1.5-2.3-1.5-2.4 1.5Z"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7v1"/>',
+  search: '<circle cx="11" cy="11" r="7.5"/><path d="m20.5 20.5-4.2-4.2"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  minus: '<path d="M5 12h14"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  'chevron-left': '<path d="m15 18-6-6 6-6"/>',
+  'chevron-right': '<path d="m9 18 6-6-6-6"/>',
+  'map-pin': '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  clock: '<circle cx="12" cy="12" r="9.5"/><path d="M12 7v5l3 2"/>',
+  phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/>',
+  instagram: '<rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><path d="M17.5 6.5h.01"/>',
+  tiktok: '<path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M14 3c.4 2.6 2.4 4.6 5 5"/>',
+  bag: '<path d="M6 7h12l1.2 13a1 1 0 0 1-1 1.1H5.8a1 1 0 0 1-1-1.1Z"/><path d="M9 10V6a3 3 0 0 1 6 0v4"/>',
+  utensils: '<path d="M4 2v7a3 3 0 0 0 3 3v10M10 2v7a3 3 0 0 1-3 3M7 2v6"/><path d="M20 15V2a5 5 0 0 0-4 5v6a2 2 0 0 0 2 2h2Zm0 0v7"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  star: '<path d="m12 2.8 2.8 5.7 6.3.9-4.6 4.5 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.4l6.3-.9Z"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20v-.5A5.5 5.5 0 0 1 8 14h2a5.5 5.5 0 0 1 5.5 5.5v.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14a5.5 5.5 0 0 1 3.5 5.1v.9"/>',
+  trash: '<path d="M3 6h18M8 6V4.5A1.5 1.5 0 0 1 9.5 3h5A1.5 1.5 0 0 1 16 4.5V6m2.5 0-.8 13.1a2 2 0 0 1-2 1.9H8.3a2 2 0 0 1-2-1.9L5.5 6"/>',
+  edit: '<path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  nav: '<path d="M3 11 21 3l-8 18-2-8Z"/>',
+  wallet: '<path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M3 7h16a2 2 0 0 1 2 2v3h-4a2 2 0 0 0 0 4h4"/>',
+  banknote: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',
+  'calendar-plus': '<path d="M8 2v4M16 2v4M21 12V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7M3 10h18M18 15v6M15 18h6"/>',
+  chat: '<path d="M3 21l1.6-4.4A8.5 8.5 0 1 1 8 20Z"/>',
+  info: '<circle cx="12" cy="12" r="9.5"/><path d="M12 16v-4.5M12 8h.01"/>',
+  copy: '<rect x="8" y="8" width="13" height="13" rx="2.5"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
+  qr: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h.01M17 21h4v-4"/>',
+  'arrow-right': '<path d="M5 12h14m-6-6 6 6-6 6"/>',
+  rotate: '<path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5"/>',
+  phone2: '<rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/>',
+  sparkle: '<path d="M12 3 10.1 8.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
+  store: '<path d="M3.5 9.5 5 4h14l1.5 5.5"/><path d="M3.5 9.5a2.8 2.8 0 0 0 5.6 0 2.8 2.8 0 0 0 5.8 0 2.8 2.8 0 0 0 5.6 0"/><path d="M5 12.5V20h14v-7.5"/><path d="M10 20v-4.5h4V20"/>',
+  scooter: '<circle cx="6" cy="18" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="M8.6 18h6.6l2.4-6"/><path d="M14.5 5.5h2.3l2.6 10"/><path d="M3.5 14.5h6.3l1.6 3.5"/><rect x="3.5" y="8" width="6" height="6.5" rx="1"/>',
+  locate: '<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22"/>',
+  share: '<path d="M12 3v13M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
+  login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5M15 12H3"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>',
+};
+
+const { useState, useEffect, useRef, useMemo } = React;
+const html = htm.bind(React.createElement);
+const D = window.RBC_DATA;
+const rp = (n) => 'Rp' + Math.round(n).toLocaleString('id-ID');
+const img = (k) => D.img[k] || '';
+const Icon = ({ n, cls = '' }) => html`<svg class=${'ico ' + cls} viewBox="0 0 24 24" aria-hidden="true" dangerouslySetInnerHTML=${{ __html: ICONS[n] || '' }}></svg>`;
+const Pic = ({ src, style }) => html`<div class="im loaded" style=${style}><img class="ok" src=${src} alt="" loading="lazy"/></div>`;
+
+/* ---------- Data tiga brand ----------
+   Menu & foto asli (buku menu Robucca, migrasi menu Kalm & Zumma). Jarak, promo, poin, ongkir dan riwayat = contoh. */
+const BRANDS = [
+  { id: 'robucca', name: 'Robucca', b: '#01512C', on: '#FAEEDA', f: '"Londrina Solid", sans-serif', hero: 'hero-spread', pics: [], menu: D.menus.robucca },
+  { id: 'kalm', name: 'Kalm', b: '#52230F', on: '#F4EEE3', f: '"Radio Canada Big", sans-serif', pics: ['kalm-the-big-breakfast-platter', 'kalm-coffee-latte-ice', 'kalm-pad-thai'], menu: D.menus.kalm },
+  { id: 'zumma', name: 'Zumma', b: '#862F26', on: '#F5EBD9', f: '"Jost", sans-serif', pics: ['zumma-breakfast-platter', 'zumma-honeycomb-latte', 'zumma-aglio-olio-shrimp-salted-egg'], menu: D.menus.zumma },
+];
+const OUTLETS = [
+  { id: 'rb-ijen', brand: 'robucca', name: 'Ijen Nirwana', city: 'Malang', km: 1.2, addr: 'Ijen Nirwana Residence Blok D No.1A' },
+  { id: 'rb-suhat', brand: 'robucca', name: 'Suhat', city: 'Malang', km: 3.4 },
+  { id: 'rb-kediri', brand: 'robucca', name: 'Kediri', city: 'Kediri', km: 98 },
+  { id: 'rb-tagung', brand: 'robucca', name: 'T.Agung', city: 'Tulungagung', km: 112 },
+  { id: 'kl-malang', brand: 'kalm', name: 'Malang', city: 'Malang', km: 2.1 },
+  { id: 'kl-ciliwung', brand: 'kalm', name: 'Ciliwung', city: 'Surabaya', km: 88 },
+  { id: 'kl-rivago', brand: 'kalm', name: 'Rivago', city: 'Surabaya', km: 91 },
+  { id: 'zm-malang', brand: 'zumma', name: 'Malang', city: 'Malang', km: 2.7 },
+  { id: 'zm-biliton', brand: 'zumma', name: 'Biliton', city: 'Surabaya', km: 89 },
+];
+const VOUCHERS = [
+  { id: 'BARENGAN', title: 'Pesan 2 brand, hemat Rp8.000', note: 'Keranjang berisi 2 brand atau lebih', ok: (c) => c.brands.length >= 2, disc: () => 8000 },
+  { id: 'HEMAT10', title: 'Diskon 10%, maks. Rp15.000', note: 'Semua brand · min. Rp50.000', ok: (c) => c.sub >= 50000, disc: (c) => Math.min(15000, c.sub * 0.1) },
+];
+const PAYS = [
+  { id: 'va_bri', name: 'BRI Virtual Account', c: '#00529C', t: 'BRI', s: 'Transfer dari m-banking / ATM' },
+  { id: 'va_bni', name: 'BNI Virtual Account', c: '#F15A23', t: 'BNI', s: 'Transfer dari m-banking / ATM' },
+  { id: 'va_mandiri', name: 'Mandiri Virtual Account', c: '#003D79', t: 'MDR', s: 'Transfer dari m-banking / ATM' },
+  { id: 'qris', name: 'QRIS', c: '#1c1b19', t: 'QRIS', s: 'Menunggu aktivasi DOKU', off: true },
+];
+const SHIP = 12000;      // contoh ongkir per outlet
+const POINT_VALUE = 10;  // contoh: 1 poin = Rp10
+const brandOf = (id) => BRANDS.find((b) => b.id === id);
+const outletOf = (id) => OUTLETS.find((o) => o.id === id);
+const oName = (o) => `${brandOf(o.brand).name} ${o.name}`;
+const logo = (b) => D.logo[`${b}-light`];
+const allItems = (b) => brandOf(b).menu.cats.flatMap((c) => c.items);
+const findItem = (b, id) => allItems(b).find((i) => i.id === id);
+const defSel = (it) => it.opts.map((o) => (o.ch.length ? 0 : -1));
+const unit = (it, sel) => it.price + it.opts.reduce((a, o, gi) => a + (sel[gi] >= 0 ? o.ch[sel[gi]].p : 0), 0);
+const selLabel = (it, sel) => it.opts.map((o, gi) => (sel[gi] >= 0 ? o.ch[sel[gi]].n : null)).filter(Boolean).join(' · ');
+const km = (k) => (k < 10 ? k.toFixed(1).replace('.', ',') : Math.round(k)) + ' km';
+const BLogo = ({ b, style }) => html`<span class="blogo" style=${{ '--b': brandOf(b).b, ...style }}><img src=${logo(b)} alt=${brandOf(b).name}/></span>`;
+const groupBy = (lines) => { const m = new Map(); lines.forEach((l) => { if (!m.has(l.outlet)) m.set(l.outlet, []); m.get(l.outlet).push(l); });
+  return [...m].map(([outlet, ls]) => ({ outlet, lines: ls, sub: ls.reduce((a, l) => a + l.unit * l.qty, 0) })); };
+const mkLine = (outlet, id, qty = 1) => { const o = outletOf(outlet); const it = findItem(o.brand, id); const sel = defSel(it);
+  return { key: outlet + '|' + id + '|' + sel.join(','), outlet, brand: o.brand, item: it, sel, note: '', qty, unit: unit(it, sel) }; };
+const greeting = () => { const h = new Date().getHours(); return h < 11 ? 'Selamat pagi' : h < 15 ? 'Selamat siang' : h < 18 ? 'Selamat sore' : 'Selamat malam'; };
+const CAT_IMG = (c) => c.items[0] && c.items[0].img;
+
+/* ======================================================================= */
+const TABS = [['home', 'beranda', 'home', 'Beranda'], ['menu', 'menu', 'coffee', 'Menu'], ['rsv', 'reservasi', 'calendar', 'Reservasi'], ['orders', 'pesanan', 'receipt', 'Pesanan'], ['account', 'akun', 'user', 'Akun']];
+const tabFromHash = () => (TABS.find((t) => '#' + t[1] === location.hash) || TABS[0])[0];
+
+function App() {
+  const [tab, setTab] = useState(tabFromHash);
+  const [sub, setSub] = useState(null);           // checkout | status | ticket
+  const [sheet, setSheet] = useState(null);
+  const [brand, setBrand] = useState('robucca');
+  const [picked, setPicked] = useState({ robucca: 'rb-ijen', kalm: 'kl-malang', zumma: 'zm-malang' });
+  const [mode, setModeS] = useState('pickup');
+  const [cart, setCart] = useState([]);
+  const [orders, setOrders] = useState(() => [
+    { id: 'RBC-2041', when: 'Sel, 27 Okt · 12.10', mode: 'delivery', status: 'Selesai', lines: [mkLine('kl-malang', 'kalm-coffee-latte-ice'), mkLine('zm-malang', 'zumma-breakfast-platter')] },
+    { id: 'RBC-2033', when: 'Sab, 24 Okt · 09.02', mode: 'pickup', status: 'Selesai', lines: [mkLine('rb-ijen', 'kopi-susu-essentials', 2), mkLine('rb-ijen', 'chicken-katsudon')] },
+  ]);
+  const [rsvs, setRsvs] = useState([]);
+  const [points, setPoints] = useState(1240);
+  const [toastS, setToastS] = useState({ on: false, msg: '' });
+  const [busy, setBusy] = useState('');
+
+  const toast = (msg) => { setToastS({ on: true, msg }); clearTimeout(toast.t); toast.t = setTimeout(() => setToastS((t) => ({ ...t, on: false })), 2000); };
+  const go = (t) => { setSub(null); setSheet(null); setTab(t); const h = TABS.find((x) => x[0] === t)[1]; if (location.hash !== '#' + h) history.replaceState(null, '', '#' + h); scrollTo(0, 0); };
+  const openSub = (s) => { setSheet(null); setSub(s); scrollTo(0, 0); };
+  const pickBrand = (b) => { if (b !== brand) setBrand(b); };
+
+  useEffect(() => { const f = () => { setSub(null); setTab(tabFromHash()); }; addEventListener('hashchange', f); return () => removeEventListener('hashchange', f); }, []);
+  useEffect(() => { document.documentElement.dataset.brand = brand; }, [brand]);
+  const showCart = cart.length > 0 && !sub && (tab === 'home' || tab === 'menu');
+  useEffect(() => { document.body.classList.toggle('sub', !!sub); document.body.classList.toggle('has-cart', showCart); }, [sub, showCart]);
+  useEffect(() => { document.documentElement.classList.toggle('lock', !!sheet); }, [sheet]);
+
+  // Satu keranjang untuk tiga brand. Tiap baris ingat outletnya; saat checkout dipecah per outlet.
+  const add = (outletId, item, sel, qty, note = '') => {
+    const o = outletOf(outletId);
+    const key = outletId + '|' + item.id + '|' + sel.join(',') + '|' + note;
+    setCart((c) => {
+      // Ganti cabang brand yang sama: baris lama brand itu ikut pindah ke cabang baru.
+      const moved = c.map((l) => (l.brand === o.brand && l.outlet !== outletId ? { ...l, outlet: outletId, key: l.key.replace(l.outlet, outletId) } : l));
+      const i = moved.findIndex((l) => l.key === key);
+      return i >= 0 ? moved.map((l, j) => (j === i ? { ...l, qty: l.qty + qty } : l)) : [...moved, { key, outlet: outletId, brand: o.brand, item, sel, note, qty, unit: unit(item, sel) }];
+    });
+    setSheet(null);
+    toast(`${item.name} masuk keranjang`);
+  };
+  const dec = (outletId, id) => setCart((c) => { const i = c.map((l) => l.outlet === outletId && l.item.id === id).lastIndexOf(true); return i < 0 ? c : c.map((l, j) => (j === i ? { ...l, qty: l.qty - 1 } : l)).filter((l) => l.qty > 0); });
+  const setQty = (key, d) => setCart((c) => c.map((l) => (l.key === key ? { ...l, qty: l.qty + d } : l)).filter((l) => l.qty > 0));
+  const pickOutlet = (b, id) => { setPicked((p) => ({ ...p, [b]: id })); setCart((c) => c.map((l) => (l.brand === b ? { ...l, outlet: id, key: l.key.replace(l.outlet, id) } : l))); setSheet(null); toast(`Cabang: ${oName(outletOf(id))}`); };
+
+  const ctx = { tab, go, sub, openSub, sheet, setSheet, brand, pickBrand, picked, pickOutlet, mode, setMode: setModeS, cart, setCart, add, dec, setQty, orders, setOrders, rsvs, setRsvs, points, setPoints, toast, setBusy };
+
+  api.go = (k) => {
+    setSheet(null);
+    if (k === 'home') { setBrand('robucca'); go('home'); }
+    if (k === 'kalm') { setBrand('kalm'); go('home'); }
+    if (k === 'menu') { setBrand('zumma'); go('menu'); }
+    if (k === 'barengan') { setCart([mkLine('rb-ijen', 'kopi-susu-essentials', 2), mkLine('kl-malang', 'kalm-the-big-breakfast-platter')]); setBrand('zumma'); go('menu'); }
+    if (k === 'checkout') { setCart([mkLine('rb-ijen', 'kopi-susu-essentials', 2), mkLine('kl-malang', 'kalm-the-big-breakfast-platter'), mkLine('zm-malang', 'zumma-honeycomb-latte')]); setSub(null); setTab('home'); openSub({ type: 'checkout' }); }
+    if (k === 'search') { setTab('menu'); setSub(null); setSheet({ type: 'search' }); }
+    if (k === 'rsv') { setBrand('kalm'); go('rsv'); }
+    if (k === 'orders') go('orders');
+    if (k === 'account') go('account');
+  };
+
+  return html`<div id="app" class="app">
+    <main id="view" class="view">
+      ${!sub && tab === 'home' && html`<${Home} ...${ctx} />`}
+      ${!sub && tab === 'menu' && html`<${MenuScreen} ...${ctx} />`}
+      ${!sub && tab === 'rsv' && html`<${Reservasi} ...${ctx} />`}
+      ${!sub && tab === 'orders' && html`<${Pesanan} ...${ctx} />`}
+      ${!sub && tab === 'account' && html`<${Akun} ...${ctx} />`}
+      ${sub && sub.type === 'checkout' && html`<${Checkout} ...${ctx} />`}
+      ${sub && sub.type === 'status' && html`<${Status} ...${ctx} order=${sub.order} />`}
+      ${sub && sub.type === 'ticket' && html`<${Ticket} ...${ctx} r=${sub.r} />`}
+    </main>
+    ${showCart && html`<${CartBar} cart=${cart} mode=${mode} onClick=${() => openSub({ type: 'checkout' })} />`}
+    <nav class="tabbar" aria-label="Navigasi utama">
+      ${TABS.map(([t, h, ic, label]) => html`<a key=${t} href=${'#' + h} class=${tab === t && !sub ? 'on' : undefined} aria-current=${tab === t && !sub ? 'page' : undefined} onClick=${(e) => { e.preventDefault(); go(t); }}>
+        <span class="ti"><${Icon} n=${ic} /></span><span>${label}</span>${t === 'orders' && html`<i class="tab-dot" hidden=${!orders.some((o) => o.live)}></i>`}</a>`)}
+    </nav>
+    <${SheetHost} ...${ctx} />
+    <div id="toast" class=${'toast ' + (toastS.on ? 'in' : '')} role="status" aria-live="polite">${toastS.msg && html`<${Icon} n="check" cls="sm" /><span>${toastS.msg}</span>`}</div>
+    ${busy && html`<div class="processing"><div class="pc"><div class="spinner"></div><p>${busy}</p></div></div>`}
+  </div>
+  <${Desk} />`;
+}
+const api = {};
+
+function CartBar({ cart, mode, onClick }) {
+  const n = cart.reduce((a, l) => a + l.qty, 0);
+  const total = cart.reduce((a, l) => a + l.qty * l.unit, 0);
+  const brands = [...new Set(cart.map((l) => l.brand))];
+  return html`<a href="#" class="cartbar" onClick=${(e) => { e.preventDefault(); onClick(); }} aria-label=${`Buka keranjang, ${n} item, ${rp(total)}`}>
+    <span class="cb-ico"><${Icon} n="bag" /><span class="cb-count">${n}</span></span>
+    <span class="cb-text"><b>${rp(total)}</b><span>${mode === 'delivery' ? 'Delivery' : 'Pick Up'} · ${n} item${brands.length > 1 ? ` · ${brands.map((b) => brandOf(b).name).join(' + ')}` : ''}</span></span>
+    <span class="cb-go">Keranjang <${Icon} n="chevron-right" cls="xs" /></span></a>`;
+}
+
+/* ---------- Beranda ---------- */
+function Home(c) {
+  const { brand, pickBrand, picked, setSheet, mode, setMode, go, orders, openSub, rsvs, cart, add, dec } = c;
+  const B = brandOf(brand);
+  const o = outletOf(picked[brand]);
+  const sigs = allItems(brand).filter((i) => i.sig).slice(0, 8);
+  const cats = B.menu.cats.slice(0, 8);
+  const live = orders.find((x) => x.live);
+  const nextR = rsvs[0];
+  const others = BRANDS.filter((x) => x.id !== brand);
+  const start = (m) => { setMode(m); go('menu'); };
+  return html`<div class="screen" key=${brand}>
+    <div class="home-top">
+      <div class="home-bar"><img class="logo" src=${D.logo['rbc-dark']} alt="RBC Group" style=${{ height: '30px' }}/>
+        <button class="icon-btn" onClick=${() => setSheet({ type: 'search' })} aria-label="Cari menu di semua brand"><${Icon} n="search" /></button></div>
+      <div class="greet"><small>${greeting()}, Dinda</small><h1>Mau makan atau ngopi apa hari ini?</h1></div>
+      <div class="brands" role="group" aria-label="Pilih brand">
+        ${BRANDS.map((x) => { const xo = outletOf(picked[x.id]); return html`<button key=${x.id} class="brand-btn" aria-pressed=${brand === x.id} onClick=${() => pickBrand(x.id)}>
+          <${BLogo} b=${x.id} /><b>${x.name}<small>${km(xo.km)}</small></b></button>`; })}
+      </div>
+      <button class=${'store-card' + (B.hero ? '' : ' collage')} onClick=${() => setSheet({ type: 'outlet', brand })} aria-label=${'Ganti cabang ' + B.name} style=${{ display: 'block', width: '100%', textAlign: 'left' }}>
+        ${B.hero ? html`<${Pic} src=${img(B.hero)} />` : html`<span class="col3">${B.pics.map((p) => html`<img key=${p} src=${img(p)} alt=""/>`)}</span>`}
+        <span class="sc-tag"><span class="tag olive"><i class="dot"></i>Buka · tutup 21.00</span></span>
+        <span class="sc-go"><${Icon} n="store" cls="sm" /></span>
+        <span class="sc-in"><b class="sc-t">${oName(o)}</b><span class="sc-a"><${Icon} n="map-pin" cls="xs" /> ${o.addr || o.city} · ${km(o.km)} · ganti cabang</span></span>
+      </button>
+      <div class="modes">
+        <button class="mode" onClick=${() => start('pickup')}><span class="mi"><${Icon} n="bag" /></span><span><b>Pick Up</b><small>Pesan & ambil tanpa antre</small></span></button>
+        <button class="mode" onClick=${() => start('delivery')}><span class="mi"><${Icon} n="scooter" /></span><span><b>Delivery</b><small>Satu kurir per cabang</small></span></button>
+        <button class="mode" onClick=${() => go('rsv')}><span class="mi"><${Icon} n="calendar" /></span><span><b>Reservasi</b><small>Booking meja</small></span></button>
+      </div>
+    </div>
+
+    ${live && html`<a class="live" href="#" onClick=${(e) => { e.preventDefault(); openSub({ type: 'status', order: live }); }}>
+      <span class="lv-ico pulse"><${Icon} n="coffee" /></span><span class="grow"><b>Pesanan sedang disiapkan</b><small>${live.id} · ${groupBy(live.lines).length} cabang</small></span><${Icon} n="chevron-right" cls="sm" /></a>`}
+    ${nextR && html`<a class="live" href="#" onClick=${(e) => { e.preventDefault(); openSub({ type: 'ticket', r: nextR }); }}>
+      <span class="lv-ico" style=${{ background: 'var(--sand)', color: 'var(--ink)' }}><${Icon} n="calendar" /></span><span class="grow"><b>Reservasi ${nextR.day}, ${nextR.time}</b><small>${nextR.guests} orang · ${oName(outletOf(nextR.outlet))}</small></span><${Icon} n="chevron-right" cls="sm" /></a>`}
+
+    <div class="sec-h"><h2>What's new</h2></div>
+    <${Carousel} pickBrand=${pickBrand} go=${go} />
+
+    ${sigs.length > 0 && html`<div class="sec-h"><h2>Signature ${B.name}</h2><a class="link" href="#menu" onClick=${(e) => { e.preventDefault(); go('menu'); }}>Lihat menu <${Icon} n="chevron-right" cls="xs" /></a></div>
+      <div class="hscroll sig-list">${sigs.map((p) => html`<${SigCard} key=${p.id} p=${p} ...${c} outletId=${o.id} />`)}</div>`}
+
+    <div class="sec-h"><h2>Kategori</h2><a class="link" href="#menu" onClick=${(e) => { e.preventDefault(); go('menu'); }}>Semua menu <${Icon} n="chevron-right" cls="xs" /></a></div>
+    <div class="cats">${cats.map((ct) => html`<a key=${ct.name} class="cat" href="#menu" onClick=${(e) => { e.preventDefault(); api.jumpCat = ct.name; go('menu'); }}><${Pic} src=${img(CAT_IMG(ct))} /><span>${ct.name}</span></a>`)}</div>
+
+    <div class="sec-h"><h2>Pesan barengan</h2></div>
+    <p class="also-note"><${Icon} n="bag" cls="sm" />Menu ${others.map((x) => x.name).join(' dan ')} bisa masuk keranjang yang sama, satu kali bayar.</p>
+    <div class="also">${others.map((x) => { const xo = outletOf(picked[x.id]); const th = allItems(x.id).filter((i) => i.sig).concat(allItems(x.id)).slice(0, 4);
+      return html`<button key=${x.id} class="card also-c" onClick=${() => { pickBrand(x.id); go('menu'); }}>
+        <${BLogo} b=${x.id} /><span><b>${x.name}</b><small>${oName(xo)} · ${km(xo.km)} · buka</small>
+        <span class="thumbs">${th.map((i) => html`<${Pic} key=${i.id} src=${img(i.img)} />`)}</span></span></button>`; })}</div>
+
+    <section class="rbc-band"><img class="logo" src=${D.logo['rbc-light']} alt="RBC Group"/>
+      <h2>Satu akun, poin dari tiga brand</h2><p>Setiap belanja di Robucca, Kalm atau Zumma, lewat aplikasi atau kasir, masuk ke RBC Poin yang sama.</p>
+      <div class="pts-row"><span><b>${c.points.toLocaleString('id-ID')}</b>poin kamu</span><span><b>1 poin</b>tiap Rp1.000 <i class="sample" style=${{ background: 'rgba(239,232,223,.12)', color: 'inherit' }}>contoh</i></span></div>
+      <a class="btn block" href="#akun" onClick=${(e) => { e.preventDefault(); go('account'); }}><${Icon} n="qr" cls="sm" /> Kode member untuk kasir</a></section>
+    <div class="foot"><img src=${D.logo['rbc-dark']} alt="RBC Group"/>Robucca · Kalm · Zumma</div>
+  </div>`;
+}
+
+function Carousel({ pickBrand, go }) {
+  const ref = useRef(null);
+  const [i, setI] = useState(0);
+  const slides = [
+    { brand: 'robucca', made: true, pic: 'kopi-susu-essentials', t: 'Kopi susu andalan', s: 'Kopi Susu Essentials Rp24.000', label: 'Lihat menu Robucca' },
+    { brand: 'kalm', made: true, pic: 'kalm-the-big-breakfast-platter', t: 'Brunch seharian', s: 'Big Breakfast Platter Rp42.000', label: 'Lihat menu Kalm' },
+    { brand: 'zumma', made: true, pic: 'zumma-honeycomb-latte', t: 'Menu baru Zumma', s: 'Honeycomb Latte Rp31.000', label: 'Lihat menu Zumma' },
+    { brand: 'robucca', made: true, pic: 'shoyu-ramen', t: 'Ramen hangat', s: 'Shoyu Ramen Rp35.000', label: 'Lihat ramen' },
+  ];
+  useEffect(() => { const el = ref.current; const f = () => setI(Math.round(el.scrollLeft / (el.firstChild.offsetWidth + 12))); el.addEventListener('scroll', f, { passive: true }); return () => el.removeEventListener('scroll', f); }, []);
+  return html`<div class="hscroll carousel" ref=${ref}>${slides.map((s, k) => { const B = brandOf(s.brand);
+      return html`<button key=${k} class=${'slide' + (s.made ? ' made' : '')} style=${{ '--b': B.b, '--on': B.on, '--f': B.f }} aria-label=${s.label} onClick=${() => { pickBrand(s.brand); go('menu'); }}>
+        ${s.made ? html`<span class="mk"><span class="mk-t"><img src=${logo(s.brand)} alt=${B.name}/><span><b>${s.t}</b><br/><small>${s.s}</small></span></span><span class="mk-p"><img src=${img(s.pic)} alt=""/></span></span>`
+          : html`<${Pic} src=${img(s.img)} /><span class="bchip"><${BLogo} b=${s.brand} />${B.name}</span>`}
+        <span class="go">${s.label} <${Icon} n="arrow-right" cls="xs" /></span></button>`; })}</div>
+    <div class="dots">${slides.map((s, k) => html`<i key=${k} class=${k === i ? 'on' : undefined}></i>`)}</div>`;
+}
+
+const qtyOf = (cart, outletId, id) => cart.filter((l) => l.outlet === outletId && l.item.id === id).reduce((a, l) => a + l.qty, 0);
+function AddCtl({ p, outletId, cart, add, dec, setSheet, light, brand }) {
+  const n = qtyOf(cart, outletId, p.id);
+  const stop = (e) => e.stopPropagation();
+  if (!p.opts.length && n > 0) return html`<span class="qty" onClick=${stop}>
+    <button aria-label="Kurangi" onClick=${() => dec(outletId, p.id)}><${Icon} n="minus" cls="sm" /></button><b>${n}</b>
+    <button aria-label="Tambah" onClick=${() => add(outletId, p, [], 1)}><${Icon} n="plus" cls="sm" /></button></span>`;
+  return html`<button class=${'add ' + (light ? 'light' : '')} aria-label=${'Tambah ' + p.name} onClick=${(e) => { e.stopPropagation(); p.opts.length ? setSheet({ type: 'item', item: p, outletId, brand }) : add(outletId, p, [], 1); }}>
+    ${n ? html`<span class="n">${n}</span>` : html`<${Icon} n="plus" cls="sm" />`}</button>`;
+}
+function SigCard(c) {
+  const { p, outletId, setSheet, brand } = c;
+  return html`<div class="sig" role="button" tabindex="0" onClick=${() => setSheet({ type: 'item', item: p, outletId, brand })}>
+    <${Pic} src=${img(p.img)} /><span class="tag dark star">★ Signature</span><b>${p.name}</b><span>${rp(p.price)}</span><${AddCtl} ...${c} light />
+  </div>`;
+}
+function ItemRow(c) {
+  const { p, outletId, setSheet, brand } = c;
+  return html`<div class="item" role="button" tabindex="0" onClick=${() => setSheet({ type: 'item', item: p, outletId, brand })}>
+    <${Pic} src=${img(p.img)} /><div class="it-b"><h3>${p.name}${p.sig && html` <span class="star" aria-label="Signature">★</span>`}</h3>
+      ${p.desc ? html`<p>${p.desc}</p>` : p.opts.length ? html`<p>${p.opts.map((o) => o.name).join(' · ')}</p>` : null}
+      <div class="it-f"><span class="pr">${rp(p.price)}</span><${AddCtl} ...${c} /></div></div></div>`;
+}
+
+/* ---------- Menu ---------- */
+function MenuScreen(c) {
+  const { brand, pickBrand, picked, setSheet, mode, setMode } = c;
+  const B = brandOf(brand);
+  const o = outletOf(picked[brand]);
+  const head = useRef(null), chips = useRef(null), body = useRef(null);
+  const [active, setActive] = useState(B.menu.cats[0].name);
+  useEffect(() => {
+    let lock = 0;
+    const spy = () => {
+      head.current && head.current.classList.toggle('shadow', scrollY > 4);
+      if (Date.now() < lock || !body.current) return;
+      const line = head.current.offsetHeight + 24; let cur = B.menu.cats[0].name;
+      body.current.querySelectorAll('.cat-sec').forEach((s) => { if (s.getBoundingClientRect().top <= line) cur = s.dataset.cat; });
+      setActive(cur);
+    };
+    api.scrollCat = (name, smooth = true) => { const s = body.current && body.current.querySelector(`[data-cat="${CSS.escape(name)}"]`); if (!s) return;
+      lock = Date.now() + (smooth ? 900 : 100); setActive(name);
+      scrollTo({ top: s.getBoundingClientRect().top + scrollY - head.current.offsetHeight - 4, behavior: smooth ? 'smooth' : 'auto' }); };
+    addEventListener('scroll', spy, { passive: true });
+    if (api.jumpCat) { const j = api.jumpCat; api.jumpCat = null; requestAnimationFrame(() => api.scrollCat(j, false)); } else scrollTo(0, 0);
+    return () => removeEventListener('scroll', spy);
+  }, [brand]);
+  useEffect(() => { const on = chips.current && chips.current.querySelector('.chip.on'); if (on) chips.current.scrollTo({ left: on.offsetLeft - 16, behavior: 'smooth' }); }, [active]);
+  return html`<div class="screen" key=${brand}>
+    <div class="menu-head" ref=${head}>
+      <div class="mh-row">
+        <div class="seg" data-v=${mode} role="tablist" aria-label="Tipe pesanan">
+          <button role="tab" aria-selected=${mode === 'pickup'} class=${mode === 'pickup' ? 'on' : undefined} onClick=${() => setMode('pickup')}><${Icon} n="bag" cls="sm" /> Pick Up</button>
+          <button role="tab" aria-selected=${mode === 'delivery'} class=${mode === 'delivery' ? 'on' : undefined} onClick=${() => setMode('delivery')}><${Icon} n="scooter" cls="sm" /> Delivery</button></div>
+        <button class="icon-btn" onClick=${() => setSheet({ type: 'search' })} aria-label="Cari menu di semua brand"><${Icon} n="search" /></button>
+      </div>
+      <div class="bseg" role="group" aria-label="Brand">${BRANDS.map((x) => html`<button key=${x.id} aria-pressed=${brand === x.id} onClick=${() => pickBrand(x.id)}><${BLogo} b=${x.id} />${x.name}</button>`)}</div>
+      <div class="ctx"><${Icon} n=${mode === 'delivery' ? 'scooter' : 'bag'} cls="xs" />
+        <span>${mode === 'delivery' ? html`Diantar dari <b>${oName(o)}</b> · ${km(o.km)}` : html`Ambil di <b>${oName(o)}</b>, tanpa antre`}</span>
+        <button class="edit" onClick=${() => setSheet({ type: 'outlet', brand })}>Ganti <${Icon} n="chevron-right" cls="xs" /></button></div>
+      <div class="hscroll cat-chips" ref=${chips}>${B.menu.cats.map((ct) => html`<button key=${ct.name} class=${'chip sm ' + (active === ct.name ? 'on' : '')} onClick=${() => api.scrollCat(ct.name)}>${ct.sig ? '★ ' : ''}${ct.name}</button>`)}</div>
+    </div>
+    <div class="menu-body" ref=${body}>
+      ${B.menu.cats.map((ct) => html`<section key=${ct.name} class="cat-sec" data-cat=${ct.name}><h2>${ct.name}${ct.sig && html` <span class="tag dark">★ Signature</span>`}</h2>
+        ${ct.items.map((p) => html`<${ItemRow} key=${p.id} p=${p} ...${c} outletId=${o.id} />`)}</section>`)}
+      <p class="faint" style=${{ fontSize: '12px', textAlign: 'center', margin: '26px 0 0' }}>Menu & harga ${B.name} dari buku menu 2026.</p>
+    </div>
+  </div>`;
+}
+
+/* ---------- Lembar bawah ---------- */
+function SheetHost(c) {
+  const { sheet, setSheet } = c;
+  const [on, setOn] = useState(false);
+  const [cur, setCur] = useState(null);
+  useEffect(() => {
+    if (sheet) { setCur(sheet); requestAnimationFrame(() => requestAnimationFrame(() => setOn(true))); }
+    else if (cur) { setOn(false); const t = setTimeout(() => setCur(null), 380); return () => clearTimeout(t); }
+  }, [sheet]);
+  useEffect(() => { const f = (e) => e.key === 'Escape' && setSheet(null); addEventListener('keydown', f); return () => removeEventListener('keydown', f); }, []);
+  if (!cur) return null;
+  const full = cur.type === 'search';
+  return html`<div class=${'backdrop ' + (on ? 'in' : '')} onClick=${() => setSheet(null)}></div>
+    <div class=${'sheet ' + (full ? 'full ' : '') + (on ? 'in' : '')} role="dialog" aria-modal="true" data-brand=${cur.brand || undefined}>
+      <div class=${'sheet-handle ' + (cur.type === 'item' ? 'on-img' : '')}></div>
+      ${cur.type === 'item' && html`<${ItemSheet} key=${cur.item.id} ...${c} s=${cur} />`}
+      ${cur.type === 'outlet' && html`<${OutletSheet} ...${c} s=${cur} />`}
+      ${cur.type === 'search' && html`<${SearchSheet} ...${c} />`}
+      ${cur.type === 'pay' && html`<${PaySheet} ...${c} s=${cur} />`}
+      ${cur.type === 'voucher' && html`<${VoucherSheet} ...${c} s=${cur} />`}
+    </div>`;
+}
+
+function ItemSheet({ s, add, setSheet }) {
+  const p = s.item; const o = outletOf(s.outletId);
+  const [sel, setSel] = useState(defSel(p));
+  const [qty, setQty] = useState(1);
+  const [note, setNote] = useState('');
+  const swap = p.opts.flatMap((g, gi) => (sel[gi] >= 0 && g.ch[sel[gi]].img ? [g.ch[sel[gi]].img] : []))[0];
+  const chips = /drink|coffee|latte|tea|matcha|kombucha|non-coffee|signature/i.test(p.name + ' ' + (p.opts[0] && p.opts[0].name || '')) ? ['Pisah es', 'Less ice', 'Tanpa sedotan'] : ['Tidak pedas', 'Saus dipisah', 'Tanpa sayur'];
+  return html`<div class="sheet-body">
+      <button class="sheet-x" onClick=${() => setSheet(null)} aria-label="Tutup"><${Icon} n="x" cls="sm" /></button>
+      <${Pic} src=${img(swap || p.img)} style=${{ width: '100%', aspectRatio: '1 / .86', maxHeight: '46vh' }} />
+      <div class="pd-head">
+        <div class="tags"><span class="tag" style=${{ paddingLeft: '3px' }}><${BLogo} b=${o.brand} style=${{ width: '34px', height: '16px', borderRadius: '99px' }} />${oName(o)}</span>${p.sig && html`<span class="tag dark">★ Signature</span>`}</div>
+        <h2>${p.name}</h2><div class="pr">${rp(unit(p, sel))}</div>${p.desc && html`<p>${p.desc}</p>`}
+      </div>
+      ${p.opts.map((g, gi) => html`<div class="og" key=${g.name}><div class="og-h"><b>${g.name}</b><span class=${'tag ' + (g.req ? 'olive' : '')}>${g.req ? 'Wajib' : 'Pilih 1'}</span></div>
+        ${g.ch.map((ch, ci) => html`<button key=${ch.n} class=${'opt ' + (sel[gi] === ci ? 'on' : '')} role="radio" aria-checked=${sel[gi] === ci} onClick=${() => setSel((x) => x.map((v, j) => (j === gi ? ci : v)))}>
+          <span class="mark"><${Icon} n="check" /></span><span class="lbl">${ch.n}</span>${ch.p ? html`<span class="op">+${rp(ch.p)}</span>` : null}</button>`)}</div>`)}
+      <div class="notes bg-in"><b>Catatan <span class="faint" style=${{ fontWeight: 400 }}>(opsional)</span></b>
+        <textarea id="item-note" class="textarea" maxlength="120" placeholder=${'Contoh: ' + chips[0].toLowerCase()} value=${note} onInput=${(e) => setNote(e.target.value)}></textarea>
+        <div class="hscroll">${chips.map((n) => html`<button key=${n} class=${'chip sm ' + (note.includes(n) ? 'on' : '')} onClick=${() => setNote((x) => (x.includes(n) ? x : (x ? x + ', ' : '') + n))}>${n}</button>`)}</div></div>
+    </div>
+    <div class="sheet-foot"><div class="qty lg"><button aria-label="Kurangi" onClick=${() => setQty((q) => Math.max(1, q - 1))}><${Icon} n="minus" cls="sm" /></button><b>${qty}</b><button aria-label="Tambah" onClick=${() => setQty((q) => q + 1)}><${Icon} n="plus" cls="sm" /></button></div>
+      <button class="btn grow" onClick=${() => add(s.outletId, p, sel, qty, note)}>Tambah · <span class="price">${rp(unit(p, sel) * qty)}</span></button></div>`;
+}
+
+function OutletSheet({ s, picked, pickOutlet, cart }) {
+  const B = brandOf(s.brand);
+  const cities = [...new Set(OUTLETS.filter((o) => o.brand === s.brand).map((o) => o.city))];
+  const inCart = cart.some((l) => l.brand === s.brand);
+  return html`<div class="sheet-body"><div class="sheet-head"><h2>Cabang ${B.name}</h2><p>Menu ${B.name} di keranjang disiapkan oleh cabang yang kamu pilih.${inCart ? ' Item yang sudah di keranjang ikut pindah.' : ''}</p></div>
+    <div class="sheet-pad">${cities.map((ct) => html`<div key=${ct}><div class="city">${ct}</div>
+      ${OUTLETS.filter((o) => o.brand === s.brand && o.city === ct).map((o) => html`<button key=${o.id} class=${'orow ' + (picked[s.brand] === o.id ? 'on' : '')} onClick=${() => pickOutlet(s.brand, o.id)}>
+        <span class="oi"><${Icon} n=${picked[s.brand] === o.id ? 'check' : 'store'} cls="sm" /></span><span class="grow"><b>${oName(o)}</b><small>${o.addr ? o.addr + ' · ' : ''}${km(o.km)} <span class="sample">contoh</span></small></span><span class="tag olive"><i class="dot"></i>Buka</span></button>`)}</div>`)}</div></div>`;
+}
+
+function SearchSheet({ picked, setSheet }) {
+  const [q, setQ] = useState('');
+  const res = q.trim().length < 2 ? [] : BRANDS.map((b) => ({ b, items: allItems(b.id).filter((i) => i.name.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 6) })).filter((r) => r.items.length);
+  return html`<div class="sheet-body">
+    <div class="search-top"><label class="sbox"><${Icon} n="search" /><input id="search-q" class="input" placeholder="Cari di Robucca, Kalm, Zumma" autoFocus value=${q} onInput=${(e) => setQ(e.target.value)}/></label>
+      <button class="icon-btn flat" onClick=${() => setSheet(null)} aria-label="Tutup"><${Icon} n="x" /></button></div>
+    ${!q && html`<div class="search-sug">${['Latte', 'Matcha', 'Croissant', 'Pizza', 'Ramen', 'Kombucha'].map((x) => html`<button key=${x} class="chip sm" onClick=${() => setQ(x)}>${x}</button>`)}</div>`}
+    <div class="search-res">${res.map(({ b, items }) => html`<div key=${b.id}><div class="sr-brand"><${BLogo} b=${b.id} />${b.name} · ${outletOf(picked[b.id]).name}</div>
+      ${items.map((p) => html`<div key=${p.id} class="item" role="button" tabindex="0" onClick=${() => setSheet({ type: 'item', item: p, outletId: picked[b.id], brand: b.id })}>
+        <${Pic} src=${img(p.img)} /><div class="it-b"><h3>${p.name}</h3>${p.desc && html`<p>${p.desc}</p>`}<div class="it-f"><span class="pr">${rp(p.price)}</span><span class="add"><${Icon} n="plus" cls="sm" /></span></div></div></div>`)}</div>`)}
+      ${q.trim().length >= 2 && !res.length && html`<div class="empty"><h3>Tidak ketemu</h3><p>Coba kata lain, misalnya "latte".</p></div>`}</div></div>`;
+}
+
+function VoucherSheet({ s, setSheet }) {
+  return html`<div class="sheet-body"><div class="sheet-head"><h2>Voucher</h2><p>Voucher RBC Group berlaku di semua brand. <span class="sample">contoh</span></p></div>
+    <div class="sheet-pad">${VOUCHERS.map((v) => { const ok = v.ok(s.calc); return html`<button key=${v.id} class="vch" disabled=${!ok} style=${{ opacity: ok ? 1 : 0.45, borderBottom: '1px solid var(--line)', padding: '10px 0' }} onClick=${() => { s.pick(s.cur === v.id ? null : v.id); setSheet(null); }}>
+      <span class="vi"><${Icon} n="sparkle" cls="sm" /></span><span class="grow"><b>${v.title}</b><small>${v.note} · ${ok ? (s.cur === v.id ? 'Dipakai' : 'Bisa dipakai') : 'Belum memenuhi syarat'}</small></span>${s.cur === v.id && html`<${Icon} n="check" />`}</button>`; })}</div></div>`;
+}
+
+function PaySheet({ s, setSheet, openSub, setCart }) {
+  const p = PAYS.find((x) => x.id === s.order.pay);
+  return html`<div class="sheet-body"><div class="sheet-head" style=${{ textAlign: 'center' }}><h2>Bayar ${rp(s.order.total)}</h2><p>Transfer ke ${p.name}. Status berubah otomatis setelah DOKU mengonfirmasi.</p></div>
+    <div class="sheet-pad" style=${{ textAlign: 'center' }}>
+      <span class="timer"><${Icon} n="clock" cls="xs" /> 59:48</span>
+      <div class="card" style=${{ margin: '14px 0 0', padding: '16px', background: 'var(--bg)', boxShadow: 'none' }}>
+        <span class="pl" style=${{ display: 'inline-grid', placeItems: 'center', width: '54px', height: '34px', borderRadius: '8px', background: p.c, color: '#fff', fontWeight: 700, fontSize: '12px' }}>${p.t}</span>
+        <div style=${{ fontSize: '24px', fontWeight: 700, letterSpacing: '.06em', margin: '10px 0 2px', fontVariantNumeric: 'tabular-nums' }}>8808 0812 0000 ${s.order.id.slice(-4)}</div>
+        <small class="faint">Nomor virtual account <span class="sample">contoh</span></small></div>
+      <ol class="steps-ol" style=${{ textAlign: 'left' }}><li>Buka m-banking ${p.t === 'MDR' ? 'Livin’' : p.t}, pilih transfer ke Virtual Account.</li><li>Masukkan nomor di atas, cek nama "RBC Group".</li><li>Selesai. Pesanan langsung masuk ke kasir tiap cabang.</li></ol></div></div>
+    <div class="sheet-foot"><button class="btn grow" onClick=${() => { setCart([]); setSheet(null); openSub({ type: 'status', order: s.order }); }}>Simulasikan pembayaran berhasil</button></div>`;
+}
+
+/* ---------- Keranjang (satu keranjang, dipecah per cabang) ---------- */
+function Checkout(c) {
+  const { cart, setQty, mode, setMode, go, points, setPoints, setOrders, orders, setCart, setSheet, setBusy, pickBrand } = c;
+  const [time, setTime] = useState(0);
+  const [cutlery, setCutlery] = useState(false);
+  const [pay, setPay] = useState('va_bri');
+  const [voucher, setVoucher] = useState(null);
+  const [usePts, setUsePts] = useState(false);
+  const groups = groupBy(cart);
+  const brands = [...new Set(cart.map((l) => l.brand))];
+  const sub = cart.reduce((a, l) => a + l.unit * l.qty, 0);
+  const calc = { sub, brands };
+  const v = VOUCHERS.find((x) => x.id === voucher && x.ok(calc));
+  const disc = v ? Math.round(v.disc(calc)) : 0;
+  const ship = mode === 'delivery' ? SHIP * groups.length : 0;
+  const before = sub - disc + ship;
+  const ptsUsed = usePts ? Math.min(points, Math.floor((before * 0.5) / POINT_VALUE)) : 0;
+  const total = before - ptsUsed * POINT_VALUE;
+  const back = () => go('menu');
+  if (!cart.length) return html`<div class="screen"><div class="appbar"><button class="icon-btn" onClick=${back} aria-label="Kembali"><${Icon} n="chevron-left" /></button><h1>Keranjang</h1><span class="spacer"></span></div>
+    <div class="empty"><div class="em-ico"><${Icon} n="bag" cls="lg" /></div><h3>Keranjang kosong</h3><p>Pilih menu dari Robucca, Kalm atau Zumma.</p><button class="btn" onClick=${back}>Lihat menu</button></div></div>`;
+  const submit = () => {
+    setBusy('Membuat pesanan…');
+    setTimeout(() => {
+      const order = { id: 'RBC-' + (2042 + orders.length), when: 'Hari ini', mode, status: 'Disiapkan', live: true, lines: cart, total, pay };
+      setOrders((os) => [order, ...os]); setPoints((p) => p - ptsUsed + Math.floor(total / 1000)); setBusy('');
+      setSheet({ type: 'pay', order });
+    }, 900);
+  };
+  const times = [['Secepatnya', '±15 menit'], ['12.30', 'Hari ini'], ['12.45', 'Hari ini'], ['13.00', 'Hari ini']];
+  return html`<div class="screen">
+    <div class="appbar"><button class="icon-btn" onClick=${back} aria-label="Kembali"><${Icon} n="chevron-left" /></button><h1>Keranjang</h1>
+      <button class="icon-btn" aria-label="Kosongkan keranjang" onClick=${() => setCart([])}><${Icon} n="trash" cls="sm" /></button></div>
+    <div class="co">
+      <div class="card">
+        <div class="seg" data-v=${mode} role="tablist"><button role="tab" class=${mode === 'pickup' ? 'on' : undefined} onClick=${() => setMode('pickup')}><${Icon} n="bag" cls="sm" /> Pick Up</button>
+          <button role="tab" class=${mode === 'delivery' ? 'on' : undefined} onClick=${() => setMode('delivery')}><${Icon} n="scooter" cls="sm" /> Delivery</button></div>
+        ${mode === 'pickup' ? html`<p class="faint" style=${{ fontSize: '12.5px', margin: '14px 0 8px' }}>Waktu ambil di counter${groups.length > 1 ? `, sama untuk ${groups.length} cabang` : ''}</p>
+          <div class="hscroll times">${times.map(([t, s], k) => html`<button key=${t} class=${'chip ' + (time === k ? 'on' : '')} onClick=${() => setTime(k)}>${t}<small>${s}</small></button>`)}</div>
+          <p class="faint" style=${{ fontSize: '12px', margin: '10px 0 0', lineHeight: 1.45 }}>${groups.length > 1 ? 'Tiap cabang menyiapkan bagiannya sendiri dan memberi kode ambil masing-masing.' : 'Tanpa antre: pesananmu langsung disiapkan, tinggal ambil di counter dengan menyebut nama atau kode pesanan.'}</p>`
+        : html`<div class="route" style=${{ padding: 0, marginTop: '6px' }}>
+          ${groups.map((g) => { const o = outletOf(g.outlet); return html`<div key=${g.outlet} class="rt-row"><span class="rt-ic store"><${Icon} n="store" cls="sm" /></span><span class="grow"><b>${oName(o)}</b><small>${km(o.km)} · kurir instan</small></span></div>`; })}
+          <div class="rt-row"><span class="rt-ic pin"><${Icon} n="map-pin" cls="sm" /></span><span class="grow"><b>Jl. Soekarno Hatta No. 27</b><small class="clamp1">Jatimulyo, Lowokwaru, Kota Malang</small></span><${Icon} n="chevron-right" cls="sm" /></div></div>
+          ${groups.length > 1 && html`<div class="note-bar olive" style=${{ margin: '10px 0 0' }}><${Icon} n="info" cls="sm" /><span>Pesanan dari ${groups.length} cabang diantar ${groups.length} kurir, bisa tiba di waktu berbeda.</span></div>`}`}
+        ${mode === 'pickup' && html`<div class="switch-row"><span class="grow"><b>Perlu alat makan?</b><small>Sendok, garpu & tisu</small></span><button class=${'switch ' + (cutlery ? 'on' : '')} role="switch" aria-checked=${cutlery} aria-label="Alat makan" onClick=${() => setCutlery(!cutlery)}></button></div>`}
+      </div>
+
+      <div class="card"><h3><${Icon} n="user" cls="sm" /> Data pemesan</h3>
+        <div class="form-grid bg-in"><label class="field"><span>Nama <em>— dipanggil saat pesanan siap</em></span><input id="co-name" class="input" value="Dinda" readonly/></label>
+          <label class="field"><span>No. WhatsApp</span><input id="co-wa" class="input" value="081200001234" readonly/></label></div></div>
+
+      <div class="card"><h3><${Icon} n="receipt" cls="sm" /> Pesanan <span class="tag">${groups.length} cabang · ${cart.reduce((a, l) => a + l.qty, 0)} item</span></h3>
+        ${groups.map((g, gi) => { const o = outletOf(g.outlet); return html`<div key=${g.outlet}>${gi > 0 && html`<div class="og-sep"></div>`}
+          <div class="og-brand"><${BLogo} b=${o.brand} /><b>${oName(o)}</b><small>${rp(g.sub)}</small></div>
+          ${g.lines.map((l) => html`<div key=${l.key} class="ci"><${Pic} src=${img(l.item.img)} />
+            <div><b>${l.item.name}</b>${(selLabel(l.item, l.sel) || l.note) && html`<small>${[selLabel(l.item, l.sel), l.note].filter(Boolean).join(' · ')}</small>`}</div>
+            <div class="ci-r"><span class="pr">${rp(l.unit * l.qty)}</span><span class="qty"><button aria-label="Kurangi" onClick=${() => setQty(l.key, -1)}><${Icon} n=${l.qty === 1 ? 'trash' : 'minus'} cls="sm" /></button><b>${l.qty}</b><button aria-label="Tambah" onClick=${() => setQty(l.key, 1)}><${Icon} n="plus" cls="sm" /></button></span></div></div>`)}</div>`; })}
+        <button class="add-more" onClick=${back}><${Icon} n="plus" cls="sm" /> Tambah menu lain</button>
+        ${brands.length < 3 && html`<div class="hscroll" style=${{ marginTop: '10px', gap: '8px' }}>${BRANDS.filter((b) => !brands.includes(b.id)).map((b) => html`<button key=${b.id} class="chip sm" onClick=${() => { pickBrand(b.id); back(); }}><${BLogo} b=${b.id} style=${{ width: '30px', height: '18px', borderRadius: '99px' }} /> Tambah dari ${b.name}</button>`)}</div>`}
+      </div>
+
+      <div class="card">
+        <button class="vch" onClick=${() => setSheet({ type: 'voucher', calc, cur: voucher, pick: setVoucher })}><span class="vi"><${Icon} n="sparkle" cls="sm" /></span>
+          <span class="grow"><b>${v ? v.title : 'Pakai voucher'}</b><small>${v ? `${v.id} · hemat ${rp(disc)}` : brands.length > 1 ? 'Ada voucher pesan barengan untukmu' : 'Lihat voucher RBC Group'}</small></span><${Icon} n="chevron-right" cls="sm" /></button>
+        <div class="switch-row"><span class="ptsi">P</span><span class="grow"><b>Pakai RBC Poin</b><small>${points.toLocaleString('id-ID')} poin · 1 poin = Rp${POINT_VALUE} <span class="sample">contoh</span></small></span>
+          <button class=${'switch ' + (usePts ? 'on' : '')} role="switch" aria-checked=${usePts} aria-label="Pakai RBC Poin" onClick=${() => setUsePts(!usePts)}></button></div></div>
+
+      <div class="card"><h3><${Icon} n="wallet" cls="sm" /> Metode pembayaran</h3>
+        ${PAYS.map((p) => html`<button key=${p.id} class=${'pay ' + (pay === p.id ? 'on' : '')} disabled=${p.off} style=${p.off ? { opacity: 0.45 } : null} onClick=${() => !p.off && setPay(p.id)}>
+          <span class="pl" style=${{ background: p.c }}>${p.t}</span><span class="grow"><b>${p.name}</b><small>${p.s}</small></span><span class="mark"></span></button>`)}
+        <p class="faint" style=${{ fontSize: '12px', margin: '8px 0 0' }}>Satu pembayaran untuk semua cabang.</p></div>
+
+      <div class="card"><h3>Ringkasan pembayaran</h3>
+        <div class="sum-row"><span>Harga (${cart.reduce((a, l) => a + l.qty, 0)} item)</span><span>${rp(sub)}</span></div>
+        ${mode === 'delivery' && html`<div class="sum-row"><span>Ongkir ${groups.length} cabang <span class="sample">contoh</span></span><span>${rp(ship)}</span></div>`}
+        ${disc > 0 && html`<div class="sum-row"><span>Voucher ${v.id}</span><span style=${{ color: 'var(--olive)' }}>−${rp(disc)}</span></div>`}
+        ${ptsUsed > 0 && html`<div class="sum-row"><span>${ptsUsed.toLocaleString('id-ID')} RBC Poin</span><span style=${{ color: 'var(--olive)' }}>−${rp(ptsUsed * POINT_VALUE)}</span></div>`}
+        <div class="sum-row total"><span>Total</span><span>${rp(total)}</span></div>
+        <div class="sum-row"><span>Poin didapat</span><span>+${Math.floor(total / 1000)} poin</span></div></div>
+    </div>
+    <div class="paybar"><div class="pb-t"><small>Total bayar</small><b>${rp(total)}</b></div><button class="btn" onClick=${submit}>Pesan Sekarang</button></div>
+  </div>`;
+}
+
+/* ---------- Status pesanan ---------- */
+function Status({ order, go }) {
+  const groups = groupBy(order.lines);
+  const dl = order.mode === 'delivery';
+  const steps = [['Pembayaran diterima', 'Lewat DOKU · 12.04'], ['Disiapkan', groups.length > 1 ? `${groups.length} cabang menyiapkan bersamaan` : 'Dapur & bar cabang'], [dl ? 'Diantar kurir' : 'Siap diambil', dl ? 'Satu kurir per cabang' : 'Sebut nama atau kode di counter'], [dl ? 'Sampai' : 'Selesai', '']];
+  return html`<div class="screen">
+    <div class="appbar"><button class="icon-btn" onClick=${() => go('orders')} aria-label="Tutup"><${Icon} n="x" /></button><h1>Pesanan ${order.id}</h1><span class="spacer"></span></div>
+    <div class="track-hero"><svg class="cup-ill" viewBox="0 0 128 128" aria-hidden="true"><g class="steam"><path d="M52 30c-4-6 4-10 0-16"/><path d="M64 30c-4-6 4-10 0-16"/><path d="M76 30c-4-6 4-10 0-16"/></g>
+      <path d="M34 44h60l-6 62a8 8 0 0 1-8 7H48a8 8 0 0 1-8-7z" fill="var(--sand)" stroke="var(--ink)" stroke-width="3"/><path d="M30 44h68" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/></svg>
+      <h1>Sedang disiapkan</h1><p>${groups.length > 1 ? `Pesananmu dikerjakan ${groups.length} cabang sekaligus. Kami kabari lewat WhatsApp saat siap.` : 'Kami kabari lewat WhatsApp saat pesananmu siap.'}</p></div>
+    <div class="card" style=${{ margin: '18px 16px 0', padding: '4px 16px' }}>
+      ${groups.map((g, i) => { const o = outletOf(g.outlet); return html`<div key=${g.outlet} class="subo"><${BLogo} b=${o.brand} />
+        <span><b>${oName(o)}</b><small>${g.lines.map((l) => `${l.qty}× ${l.item.name}`).join(', ')}</small></span>
+        <span style=${{ textAlign: 'right' }}><small class="faint">${dl ? 'Status' : 'Kode ambil'}</small><span class="code">${dl ? 'Disiapkan' : { robucca: 'RB', kalm: 'KL', zumma: 'ZM' }[o.brand] + '-' + order.id.slice(-2) + (i + 1)}</span></span></div>`; })}</div>
+    <div class="card tl">${steps.map(([t, s], i) => html`<div key=${t} class=${'tl-s ' + (i === 0 ? 'done' : i === 1 ? 'cur' : '')}><span class="dot">${i === 0 && html`<${Icon} n="check" cls="xs" />`}</span><span><b>${t}</b>${s && html`<small>${s}</small>`}</span></div>`)}</div>
+    <div class="actions"><button class="btn soft" onClick=${() => go('home')}>Kembali ke beranda</button></div>
+    <div style=${{ height: '30px' }}></div></div>`;
+}
+
+/* ---------- Reservasi ---------- */
+function Reservasi(c) {
+  const { brand, picked, setRsvs, openSub, toast } = c;
+  const [outlet, setOutlet] = useState(picked[brand]);
+  const [day, setDay] = useState(1);
+  const [time, setTime] = useState('19.00');
+  const [guests, setGuests] = useState(4);
+  const o = outletOf(outlet); const B = brandOf(o.brand);
+  useEffect(() => { setOutlet(picked[brand]); }, [brand]);
+  const days = [['Kam', 29], ['Jum', 30], ['Sab', 31], ['Min', 1], ['Sen', 2], ['Sel', 3]];
+  const slots = ['10.00', '11.00', '13.00', '15.00', '17.00', '18.00', '19.00', '19.30'];
+  const submit = () => { const r = { id: 'RSV-' + Math.floor(1000 + Math.random() * 9000), outlet, day: `${days[day][0]} ${days[day][1]}`, time, guests }; setRsvs((x) => [r, ...x]); toast('Reservasi diajukan'); openSub({ type: 'ticket', r }); };
+  return html`<div class="screen">
+    <div class="rsv-hero">${B.hero ? html`<${Pic} src=${img('venue-table')} />` : html`<div class="im loaded" style=${{ background: B.b }}><img class="ok" src=${img(B.pics[0])} alt="" style=${{ opacity: 0.55 }}/></div>`}
+      <div class="rh-in"><img src=${logo(o.brand)} alt=${B.name}/><h1>Reservasi meja</h1><p>Booking tempat untuk nongkrong, kerja, atau acara.</p>
+        <span class="rh-branch"><${Icon} n="store" cls="xs" /> ${oName(o)}</span></div></div>
+    <div class="rsv-body">
+      <div class="card"><h3><span class="n">1</span> Cabang</h3><div class="hscroll" style=${{ gap: '8px', flexWrap: 'wrap' }}>
+        ${OUTLETS.filter((x) => x.city === 'Malang').map((x) => html`<button key=${x.id} class=${'chip sm ' + (outlet === x.id ? 'on' : '')} onClick=${() => setOutlet(x.id)}><${BLogo} b=${x.brand} style=${{ width: '28px', height: '18px', borderRadius: '99px' }} /> ${oName(x)}</button>`)}</div>
+        <p class="faint" style=${{ fontSize: '12px', margin: '10px 0 0' }}>Satu formulir untuk ketiga brand. Cabang luar Malang muncul sesuai lokasi.</p></div>
+      <div class="card"><h3><span class="n">2</span> Tanggal</h3><div class="hscroll dates">${days.map(([d, n], i) => html`<button key=${n} class=${'date ' + (day === i ? 'on' : '')} onClick=${() => setDay(i)}><small>${d}</small><b>${n}</b><small>${i < 3 ? 'Okt' : 'Nov'}</small></button>`)}</div></div>
+      <div class="card"><h3><span class="n">3</span> Jam</h3><div class="slots">${slots.map((t) => html`<button key=${t} class=${'chip ' + (time === t ? 'on' : '')} disabled=${t === '18.00'} onClick=${() => setTime(t)}>${t}</button>`)}</div></div>
+      <div class="card"><h3><span class="n">4</span> Jumlah tamu</h3><div class="guests"><span class="qty lg"><button aria-label="Kurangi" onClick=${() => setGuests((g) => Math.max(1, g - 1))}><${Icon} n="minus" cls="sm" /></button><b>${guests}</b><button aria-label="Tambah" onClick=${() => setGuests((g) => Math.min(30, g + 1))}><${Icon} n="plus" cls="sm" /></button></span>
+        <span class="g-txt"><b>${guests} orang</b><small>DP / min. belanja mengikuti aturan cabang</small></span></div></div>
+    </div>
+    <div class="paybar"><div class="pb-t"><small>${B.name}</small><b>${days[day][0]} ${days[day][1]}, ${time}</b></div><button class="btn" onClick=${submit}>Ajukan reservasi</button></div>
+  </div>`;
+}
+
+function Ticket({ r, go }) {
+  const o = outletOf(r.outlet);
+  return html`<div class="screen" data-brand=${o.brand}>
+    <div class="appbar"><button class="icon-btn" onClick=${() => go('orders')} aria-label="Tutup"><${Icon} n="x" /></button><h1>Tiket reservasi</h1><span class="spacer"></span></div>
+    <div class="ticket"><div class="tk-top" style=${{ background: brandOf(o.brand).b }}><img src=${logo(o.brand)} alt=""/><span class="tag warn">Menunggu konfirmasi</span><h2>${r.day}, ${r.time}</h2><p>${oName(o)}</p></div>
+      <div class="tk-cut"><i></i></div>
+      <div class="tk-grid"><span><small>Tamu</small><b>${r.guests} orang</b></span><span><small>Cabang</small><b>${oName(o)}</b></span><span><small>Atas nama</small><b>Dinda</b></span><span><small>Konfirmasi</small><b>Lewat WhatsApp</b></span></div>
+      <div class="tk-code"><span class="faint" style=${{ fontSize: '12px' }}>Kode</span><b>${r.id}</b></div></div>
+    <div class="actions"><button class="btn soft" onClick=${() => go('home')}>Kembali ke beranda</button></div></div>`;
+}
+
+/* ---------- Aktivitas & Akun ---------- */
+function Pesanan({ orders, rsvs, openSub, setCart, go }) {
+  const [v, setV] = useState('orders');
+  return html`<div class="screen">
+    <div class="list-head"><h1>Aktivitas</h1><div class="seg" data-v=${v === 'rsv' ? 'rsv' : 'pickup'}>
+      <button class=${v === 'orders' ? 'on' : undefined} onClick=${() => setV('orders')}>Pesanan</button><button class=${v === 'rsv' ? 'on' : undefined} onClick=${() => setV('rsv')}>Reservasi</button></div></div>
+    <div class="olist">
+      ${v === 'orders' && html`<div class="list-sub">Semua brand</div>${orders.map((o) => { const gs = groupBy(o.lines); const bs = [...new Set(o.lines.map((l) => l.brand))];
+        return html`<div key=${o.id} class="card oc"><div class="oc-h"><span class=${'ic ' + (bs.length > 1 ? 'multi' : '')}>${bs.map((b) => html`<${BLogo} key=${b} b=${b} />`)}</span>
+          <span class="grow"><b>${o.mode === 'delivery' ? 'Delivery' : 'Pick Up'} · ${gs.map((g) => oName(outletOf(g.outlet))).join(' + ')}</b><small>${o.id} · ${o.when}</small></span>
+          <span class=${'tag ' + (o.live ? 'warn' : 'olive')}>${o.status}</span></div>
+          <div class="oc-items">${o.lines.map((l) => `${l.qty}× ${l.item.name}`).join(', ')}</div>
+          <div class="oc-f"><span>${rp(o.total || o.lines.reduce((a, l) => a + l.qty * l.unit, 0))}</span>
+            ${o.live ? html`<button class="btn sm" onClick=${() => openSub({ type: 'status', order: o })}>Lacak</button>`
+              : html`<button class="btn sm soft" onClick=${() => { setCart(o.lines.map((l) => ({ ...l }))); openSub({ type: 'checkout' }); }}><${Icon} n="rotate" cls="sm" /> Pesan lagi</button>`}</div></div>`; })}`}
+      ${v === 'rsv' && (rsvs.length ? rsvs.map((r) => html`<button key=${r.id} class="card oc" onClick=${() => openSub({ type: 'ticket', r })}><div class="oc-h"><span class="ic"><${BLogo} b=${outletOf(r.outlet).brand} /></span>
+          <span class="grow"><b>${r.day}, ${r.time} · ${r.guests} orang</b><small>${oName(outletOf(r.outlet))} · ${r.id}</small></span><span class="tag warn">Menunggu</span></div></button>`)
+        : html`<div class="empty"><div class="em-ico"><${Icon} n="calendar" cls="lg" /></div><h3>Belum ada reservasi</h3><p>Booking meja di Robucca, Kalm atau Zumma.</p><button class="btn" onClick=${() => go('rsv')}>Reservasi meja</button></div>`)}
+    </div></div>`;
+}
+
+function Akun({ points, orders }) {
+  const target = 2500;
+  return html`<div class="screen">
+    <div class="acc-head"><h1>Akun</h1></div>
+    <div class="member"><img class="mk" src=${D.logo['rbc-mark-light']} alt=""/>
+      <span class="tier">RBC Member · Silver <span class="sample" style=${{ background: 'rgba(239,232,223,.15)', color: 'inherit' }}>contoh</span></span>
+      <div class="big">${points.toLocaleString('id-ID')} poin</div>
+      <div class="bar"><i style=${{ width: Math.min(100, (points / target) * 100) + '%' }}></i></div>
+      <small>${Math.max(0, target - points).toLocaleString('id-ID')} poin lagi ke Gold · berlaku di semua brand</small>
+      <div class="bl">${BRANDS.map((b) => html`<${BLogo} key=${b.id} b=${b.id} />`)}</div></div>
+    <div class="card profile" style=${{ margin: '12px 16px 0' }}><span class="avatar">D</span><span class="grow"><b>Dinda Ayu Lestari</b><small>0812-0000-1234 · masuk dengan WhatsApp</small></span></div>
+    <div class="card menu-list">
+      ${[['qr', 'Kode member', 'Tunjukkan di kasir Robucca, Kalm, Zumma'], ['map-pin', 'Alamat tersimpan', '2 alamat · dipakai di semua brand'], ['receipt', 'Riwayat pesanan', orders.length + ' pesanan'], ['chat', 'Bantuan', 'Chat WhatsApp RBC Group'], ['logout', 'Keluar', '']].map(([ic, t, s]) => html`
+        <button key=${t} class="ml"><span class="ml-i"><${Icon} n=${ic} cls="sm" /></span><span class="grow">${t}${s && html`<small>${s}</small>`}</span><${Icon} n="chevron-right" cls="sm" /></button>`)}</div>
+    <div class="foot"><img src=${D.logo['rbc-dark']} alt="RBC Group"/>Versi prototipe · 30 Okt 2026</div></div>`;
+}
+
+/* ---------- Panel prototipe (desktop) ---------- */
+function Desk() {
+  const flows = [['home', 'Beranda', 'Kerangka Robucca'], ['kalm', 'Ganti ke Kalm', 'Satu ketukan'], ['menu', 'Menu Zumma', 'Pilih brand di menu'], ['barengan', 'Pesan barengan', 'Robucca + Kalm + Zumma'],
+    ['checkout', 'Keranjang', 'Dipecah per cabang'], ['search', 'Cari', 'Lintas 3 brand'], ['rsv', 'Reservasi', 'Satu formulir'], ['account', 'Akun', 'RBC Poin']];
+  return html`<aside class="desk"><img class="desk-logo" src=${D.logo['rbc-dark']} alt="RBC Group"/>
+    <p class="desk-lead">Prototipe super app</p>
+    <p class="desk-note">Kerangka PWA Robucca yang sudah live, diperluas untuk Robucca, Kalm dan Zumma. Tampilan, warna dan huruf ikut brand yang dipilih. Menu & foto asli; promo, poin, jarak dan ongkir contoh.</p>
+    <h3>Coba alurnya</h3><div class="flows">${flows.map(([k, t, s]) => html`<button key=${k} onClick=${() => api.go(k)}>${t}<small>${s}</small></button>`)}</div>
+    <h3>Perlu keputusan</h3><ul><li><b>Ongkir</b> pesanan dari beberapa cabang (contoh Rp12.000 per cabang).</li><li><b>Aturan RBC Poin</b> (contoh 1 poin tiap Rp1.000, 1 poin = Rp10).</li><li><b>Domain</b>: tetap robucca.id atau domain RBC Group.</li></ul></aside>`;
+}
+
+/* lembar cabang untuk reservasi memakai lembar cabang brand aktif */
+document.getElementById('splash-img').src = D.logo['rbc-light'];
+setTimeout(() => document.getElementById('splash').classList.add('out'), 1100);
+ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+
+</script>
